@@ -56,7 +56,7 @@
                    (require 'clojure.data.json)
                    (clojure.data.json/write-str
                       (map (fn [e] (assoc (:env (ex-data e)) :msg (.getMessage e)))
-                      (:delayed-errors (t/check-ns-info '%s)))))")
+                      (:delayed-errors (clojure.core.typed/check-ns-info '%s)))))")
 
 (defun get-rec-from-alist (al ks)
   "Extract a list of the values in AL with keys KS."
@@ -120,7 +120,9 @@ to which we will pass flycheck error objects."
       (lambda (_buffer value)
 	(message "Finished core.typed check.")
 	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))  (parse-tc-json value)))
-      (lambda (_buffer out))
+      (lambda (_buffer out)
+	;(message out)
+	)
       (lambda (_buffer err))
       '())
      )
