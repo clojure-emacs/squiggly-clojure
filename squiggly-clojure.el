@@ -64,22 +64,24 @@
 
 ;; Nb. the clojure output gets double-escaped, so we double-decode.
 (defun parse-tc-json (s)
-  (let ((ws (json-read-from-string (json-read-from-string s))))
-    (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg))) ws)))
+  (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg)))
+	  (json-read-from-string (json-read-from-string s))))
 
-(defun parse-tc (out)
-  "Parse an output chunk from typed clojure: OUT."
-  (delq nil
-	(mapcar (lambda (s)
-	       (let ((r "^\\([^[:space:]]+\\)\\:\\([[:digit:]]+\\)\\:\\([[:digit:]]+\\)\\:[[:space:]]*\\(.*\\)"))
-		 (if (string-match r s)
-		     (list
-		      (match-string 1 s)                     ;; file
-		      (string-to-number (match-string 2 s))  ;; line
-		      (string-to-number (match-string 3 s))  ;; col
-		      (match-string 4 s)                     ;; msg
-		      ))))
-		(split-string out "__EOE__"))))
+
+;; Kibit command; just add filename.
+(setq cmdf-kb "(do (require 'kibit.check)
+                      (require 'clojure.data.json)
+                      (def _squiggly (atom []))
+                      (kibit.check/check-file \"%s\"
+                         :reporter (fn [e] (swap! _squiggly conj (-> e (update-in [:expr] print-str) (update-in [:alt] print-str)))))
+                      (clojure.data.json/write-str @_squiggly))")
+
+(defun parse-kb (s)
+  (let ((ws (json-read-from-string (json-read-from-string s))))
+    (mapcar (lambda (w) (append (get-rec-from-alist w '(file line column))
+			   (list (pcase-let* ((`(,alt ,expr) (get-rec-from-alist  w '(alt expr))))
+				   (format "Kibit: Consider\n%s\ninstead of\n%s" alt expr)))))
+	    ws)))
 
 (defun tuple-to-error (w checker buffer fname error-type)
   "Convert W of form '(file, line, column, message) to flycheck error object.
@@ -99,6 +101,7 @@ to which we will pass flycheck error objects."
 	 (ns     (cider-current-ns))
 	 (cmd-ew (format cmdf-ew ns))
 	 (cmd-tc (format cmdf-tc ns))
+	 (cmd-kb (format cmdf-kb fname))
 	 (errors ()))
 
     ;; cider-eval requests are queued
@@ -127,6 +130,19 @@ to which we will pass flycheck error objects."
       nil
       (lambda (_buffer ex _rex _sess) (message (format "Typecheck not run: %s" ex)))))
 
+    (cider-tooling-eval
+     cmd-kb
+     (nrepl-make-response-handler
+      buffer
+      (lambda (_buffer value)
+	(message "Finished kibit check.")
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))
+	      (parse-kb value)))
+      nil
+      nil
+      nil
+      (lambda (_buffer ex _rex _sess) (message (format "Kibit not run: %s %s" cmd-kb ex)))))
+
     (cider-tooling-eval "true"
 		(nrepl-make-response-handler
 		 buffer
@@ -143,10 +159,13 @@ to which we will pass flycheck error objects."
   "A syntax checker for Clojure using Cider"
   :start #'flycheck-clj-cider-start
   :modes '(clojure-mode)
+  :predicate ((lambda () cider-mode))
   )
 
 (add-to-list 'flycheck-checkers 'clojure-cider-checker)
 
 (provide 'squiggly-clojure)
 ;;; squiggly-clojure.el ends here
+
+
 
