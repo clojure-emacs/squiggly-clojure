@@ -1,7 +1,13 @@
 squiggly-clojure
 ================
 
-Flycheck checker for Clojure, using eastwood and core.typed.
+![type error](./cant/squiggle1.png)
+
+Flycheck checker for Clojure, using eastwood, core.typed and kibit
+via cider.
+
+See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
+
 
 ### Dependencies in emacs:
 
