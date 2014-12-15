@@ -81,11 +81,11 @@
 		      ))))
 		(split-string out "__EOE__"))))
 
-(defun tuple-to-error (w checker buffer fname)
+(defun tuple-to-error (w checker buffer fname error-type)
   "Convert W of form '(file, line, column, message) to flycheck error object.
 Uses CHECKER, BUFFER and FNAME unmodified."
   (pcase-let* ((`(,file ,line ,column ,msg) w))
-    (flycheck-error-new-at line column 'error msg
+    (flycheck-error-new-at line column error-type msg
 			   :checker checker
 			   :buffer buffer
 			   :filename fname)))
@@ -109,23 +109,23 @@ to which we will pass flycheck error objects."
       (lambda (_buffer _value)
 	  (message "Finished eastwood check."))
       (lambda (_buffer out)
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))
 	      (parse-ew out)))
-      (lambda (_buffer err))
-      '()))
+      nil
+      nil
+      (lambda (_buffer ex _rex _sess) (message (format "Eastwood not run: %s" ex)))))
 
     (cider-tooling-eval cmd-tc
      (nrepl-make-response-handler
       buffer
       (lambda (_buffer value)
 	(message "Finished core.typed check.")
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))  (parse-tc-json value)))
-      (lambda (_buffer out)
-	;(message out)
-	)
-      (lambda (_buffer err))
-      '())
-     )
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'error) errors))
+	      (parse-tc-json value)))
+      nil
+      nil
+      nil
+      (lambda (_buffer ex _rex _sess) (message (format "Typecheck not run: %s" ex)))))
 
     (cider-tooling-eval "true"
 		(nrepl-make-response-handler
