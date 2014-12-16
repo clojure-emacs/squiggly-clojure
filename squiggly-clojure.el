@@ -1,7 +1,7 @@
 ;;; squiggly-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
 ;;
 ;; Author: Peter Fraenkel <pnf@podsnap.com>
-;; URL: 
+;; URL:
 ;; Version: 1.1.0
 ;; Package-Requires: ((clojure-mode "2.1.1") (cider "0.8.1") (json "1.4") (flycheck "0.22-cvs1"))
 
@@ -64,6 +64,7 @@
 
 ;; Nb. the clojure output gets double-escaped, so we double-decode.
 (defun parse-tc-json (s)
+  "Extract file, line, column and msg fields from an alist, which was probably created by parsing the JSON form of core.typed output in parameter S."
   (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg)))
 	  (json-read-from-string (json-read-from-string s))))
 
@@ -77,6 +78,7 @@
                       (clojure.data.json/write-str @_squiggly))")
 
 (defun parse-kb (s)
+  "Parse kibit output in JSON form from string S."
   (let ((ws (json-read-from-string (json-read-from-string s))))
     (mapcar (lambda (w) (append (get-rec-from-alist w '(file line column))
 			   (list (pcase-let* ((`(,alt ,expr) (get-rec-from-alist  w '(alt expr))))
@@ -85,7 +87,7 @@
 
 (defun tuple-to-error (w checker buffer fname error-type)
   "Convert W of form '(file, line, column, message) to flycheck error object.
-Uses CHECKER, BUFFER and FNAME unmodified."
+Uses CHECKER, BUFFER, FNAME and ERROR-TYPE unmodified."
   (pcase-let* ((`(,file ,line ,column ,msg) w))
     (flycheck-error-new-at line column error-type msg
 			   :checker checker
@@ -94,8 +96,8 @@ Uses CHECKER, BUFFER and FNAME unmodified."
 
 
 (defun flycheck-clj-cider-start (checker callback)
-  "Invoked by flycheck, which provides CHECKER for identification and a CALLBACK
-to which we will pass flycheck error objects."
+  "Invoked by flycheck, which provides CHECKER for identification.
+Error objects are passed in a list to the CALLBACK function."
   (let* ((buffer (current-buffer))
 	 (fname  (buffer-file-name buffer))
 	 (ns     (cider-current-ns))
