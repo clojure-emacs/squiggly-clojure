@@ -34,7 +34,7 @@
 (require 'json)
 
 ;;;###autoload
-(defgroup squiggly-clojure nil
+t(defgroup squiggly-clojure nil
   "Clojure support for Flycheck")
 
 ;;;###autoload
@@ -47,13 +47,36 @@
 	  (const :tag "Info" 1)
 	  (const :tag "Muted" 0)))
 
+
+(defun squiggly-clojure-message (level msg)
+  "When chat level >= LEVEL, display MSG."
+  (when (>= squiggly-clojure-chat-level level)
+    (message msg)))
+
+(defun squiggly-clojure-message-cb (level)
+  "Create callback that prints msg when chat level >= LEVEL."
+  (lambda (_buffer msg) (when (>= squiggly-clojure-chat-level level)
+		     (message msg))))
+
+(defun get-rec-from-alist (al ks)
+  "Extract a list of the values in AL with keys KS."
+  (mapcar (lambda (k) (cdr (assoc k al))) ks))
+
+;; Nb. the clojure output gets double-escaped, so we double-decode.
+(defun parse-json (s)
+  "Extract file, line, column and msg fields from an alist, which was probably created by parsing the JSON form of core.typed output in parameter S."
+  (squiggly-clojure-message 2 s)
+  (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg level)))
+	  (json-read-from-string (json-read-from-string s))))
+
+
 (defun cmdf-ew (ns)
   "Generate core.typed command from NS."
   (format
    "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))" ns))
 
 
-(defun parse-ew (out)
+(defun Xparse-ew (out)
   "Parse an output chunk from eastwood: OUT."
   (delq nil
 	(mapcar (lambda (s)
@@ -67,20 +90,11 @@
 		      ))))
 		(split-string out "\n"))))
 
+
 (defun cmdf-tc (ns)
   "Generate core.typed command from NS."
   (format
    "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))" ns))
-
-(defun get-rec-from-alist (al ks)
-  "Extract a list of the values in AL with keys KS."
-  (mapcar (lambda (k) (cdr (assoc k al))) ks))
-
-;; Nb. the clojure output gets double-escaped, so we double-decode.
-(defun parse-tc-json (s)
-  "Extract file, line, column and msg fields from an alist, which was probably created by parsing the JSON form of core.typed output in parameter S."
-  (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg)))
-	  (json-read-from-string (json-read-from-string s))))
 
 
 ;; Kibit command; just add filename.
@@ -93,28 +107,20 @@
   "Parse kibit output in JSON form from string S."
   (let ((ws (json-read-from-string (json-read-from-string s))))
     (mapcar (lambda (w) (append (get-rec-from-alist w '(file line column))
-			   (list (pcase-let* ((`(,alt ,expr) (get-rec-from-alist  w '(alt expr))))
-				   (format "Kibit: Consider\n%s\ninstead of\n%s" alt expr)))))
+			   (pcase-let* ((`(,alt ,expr) (get-rec-from-alist  w '(alt expr))))
+			     (list
+			      (format "Kibit: Consider\n%s\ninstead of\n%s" alt expr)
+			      "warning"))))
 	    ws)))
 
-(defun tuple-to-error (w checker buffer fname error-type)
+(defun tuple-to-error (w checker buffer fname)
   "Convert W of form '(file, line, column, message) to flycheck error object.
-Uses CHECKER, BUFFER, FNAME and ERROR-TYPE unmodified."
-  (pcase-let* ((`(,file ,line ,column ,msg) w))
-    (flycheck-error-new-at line column error-type msg
+Uses CHECKER, BUFFER, FNAME unmodified."
+  (pcase-let* ((`(,file ,line ,column ,msg ,level) w))
+    (flycheck-error-new-at line column (intern level) msg
 			   :checker checker
 			   :buffer buffer
 			   :filename fname)))
-
-(defun squiggly-clojure-message (level msg)
-  "When chat level >= LEVEL, display MSG."
-  (when (>= squiggly-clojure-chat-level level)
-    (message msg)))
-
-(defun squiggly-clojure-message-cb (level)
-  "Create callback that prints msg when chat level >= LEVEL."
-  (lambda (_buffer msg) (when (>= squiggly-clojure-chat-level level)
-		     (message msg))))
 
 (defun flycheck-clj-cider-start (checker callback)
   "Invoked by flycheck, which provides CHECKER for identification.
@@ -133,11 +139,12 @@ Error objects are passed in a list to the CALLBACK function."
     (cider-tooling-eval cmd-ew
      (nrepl-make-response-handler
       buffer
-      (lambda (_buffer _value)
-	  (squiggly-clojure-message 1 "Finished eastwood check."))
-      (lambda (_buffer out)
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))
-	      (parse-ew out)))
+      (lambda (_buffer value)
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+ 	      (parse-json value))
+	(squiggly-clojure-message 1 "Finished eastwood check."))
+      nil
+      ;;(lambda (_buffer out)	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))	      (parse-ew out)))
       nil
       nil
       (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Eastwood not run: %s" ex)))))
@@ -148,8 +155,8 @@ Error objects are passed in a list to the CALLBACK function."
       buffer
       (lambda (_buffer value)
 	(squiggly-clojure-message 1 "Finished core.typed check.")
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'error) errors))
- 	      (parse-tc-json value)))
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+ 	      (parse-json value)))
       (squiggly-clojure-message-cb 2)
       (squiggly-clojure-message-cb 2)
       nil
@@ -162,7 +169,7 @@ Error objects are passed in a list to the CALLBACK function."
       buffer
       (lambda (_buffer value)
 	(squiggly-clojure-message 1 "Finished kibit check.")
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))
+	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
 	      (parse-kb value)))
       (squiggly-clojure-message-cb 2)
       (squiggly-clojure-message-cb 2)
@@ -192,6 +199,5 @@ Error objects are passed in a list to the CALLBACK function."
 
 (provide 'squiggly-clojure)
 ;;; squiggly-clojure.el ends here
-
 
 
