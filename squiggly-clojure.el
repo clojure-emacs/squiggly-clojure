@@ -47,6 +47,14 @@
 	  (const :tag "Info" 1)
 	  (const :tag "Muted" 0)))
 
+;;;###autoload
+(defcustom squiggly-clojure-checkers '(eastwood kibit typed)
+  "Set of clojure checkers to apply."
+  :group 'squiggly-clojure
+  :type '(set
+	  (const :tag "Eastwood" eastwood)
+	  (const :tag "Kibit" kibit)
+	  (const :tag "Typed Clojure" typed)))
 
 (defun squiggly-clojure-message (level msg)
   "When chat level >= LEVEL, display MSG."
@@ -135,45 +143,48 @@ Error objects are passed in a list to the CALLBACK function."
 
     ;; cider-eval requests are queued
 
-    (squiggly-clojure-message 2 cmd-ew)
-    (cider-tooling-eval cmd-ew
-     (nrepl-make-response-handler
-      buffer
-      (lambda (_buffer value)
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
- 	      (parse-json value))
-	(squiggly-clojure-message 1 "Finished eastwood check."))
-      (squiggly-clojure-message-cb 2)
-      (squiggly-clojure-message-cb 2)
-      nil
-      (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Eastwood not run: %s" ex)))))
+    (when (memq 'eastwood squiggly-clojure-checkers)
+      (squiggly-clojure-message 2 cmd-ew)
+      (cider-tooling-eval cmd-ew
+			  (nrepl-make-response-handler
+			   buffer
+			   (lambda (_buffer value)
+			     (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+				   (parse-json value))
+			     (squiggly-clojure-message 1 "Finished eastwood check."))
+			   (squiggly-clojure-message-cb 2)
+			   (squiggly-clojure-message-cb 2)
+			   nil
+			   (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Eastwood not run: %s" ex))))))
 
-    (squiggly-clojure-message 2 cmd-tc)
-    (cider-tooling-eval cmd-tc
-     (nrepl-make-response-handler
-      buffer
-      (lambda (_buffer value)
-	(squiggly-clojure-message 1 "Finished core.typed check.")
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
- 	      (parse-json value)))
-      (squiggly-clojure-message-cb 2)
-      (squiggly-clojure-message-cb 2)
-      nil
-      (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Typecheck not run: %s" ex)))))
+    (when (memq 'typed squiggly-clojure-checkers)
+      (squiggly-clojure-message 2 cmd-tc)
+      (cider-tooling-eval cmd-tc
+			  (nrepl-make-response-handler
+			   buffer
+			   (lambda (_buffer value)
+			     (squiggly-clojure-message 1 "Finished core.typed check.")
+			     (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+				   (parse-json value)))
+			   (squiggly-clojure-message-cb 2)
+			   (squiggly-clojure-message-cb 2)
+			   nil
+			   (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Typecheck not run: %s" ex))))))
 
-    (squiggly-clojure-message 2 cmd-kb)
-    (cider-tooling-eval
-     cmd-kb
-     (nrepl-make-response-handler
-      buffer
-      (lambda (_buffer value)
-	(squiggly-clojure-message 1 "Finished kibit check.")
-	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
-	      (parse-json value)))
-      (squiggly-clojure-message-cb 2)
-      (squiggly-clojure-message-cb 2)
-      nil
-      (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Kibit not run: %s %s" cmd-kb ex)))))
+    (when (memq 'kibit squiggly-clojure-checkers)
+      (squiggly-clojure-message 2 cmd-kb)
+      (cider-tooling-eval
+       cmd-kb
+       (nrepl-make-response-handler
+	buffer
+	(lambda (_buffer value)
+	  (squiggly-clojure-message 1 "Finished kibit check.")
+	  (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
+		(parse-json value)))
+	(squiggly-clojure-message-cb 2)
+	(squiggly-clojure-message-cb 2)
+	nil
+	(lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Kibit not run: %s %s" cmd-kb ex))))))
 
     (squiggly-clojure-message 2 "Launched all checkers.")
     (cider-tooling-eval "true"
