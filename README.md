@@ -27,7 +27,7 @@ The latter is strongly recommended, so that linting and type errors don't clash 
 auto-documentation.
 
 ~~~.el
-(add-hook 'after-init-hook #'global-flycheck-mode)
+(add-hook 'cider-mode-hook (lambda () (flycheck-mode 1)))
 (eval-after-load 'flycheck
   '(custom-set-variables
    '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
