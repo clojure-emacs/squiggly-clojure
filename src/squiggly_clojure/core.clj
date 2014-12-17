@@ -1,4 +1,8 @@
-(ns  squiggly-clojure.core)
+(ns squiggly-clojure.core
+  (:require eastwood.lint
+            kibit.check
+            clojure.data.json
+            clojure.core.typed))
 
 
 ;; Temporarily, until this is released by eastwood
@@ -50,43 +54,37 @@ Keys in a warning map:
 
 
 (defn check-ew [ns & [opts]]
-  (do (require 'eastwood.lint)
-      (require 'clojure.data.json)
-      (let [lint-warnings (atom [])
-            opts (merge {:cwd (.getCanonicalFile (clojure.java.io/file "."))
-                         :namespaces [ns]} opts)
-            cb (fn cb [info]
-                 (case (:kind info)
-                   :lint-warning (swap! lint-warnings conj (:warn-data info))
-                   :default))  ; do nothing with other kinds of callbacks
-            opts (if (contains? opts :callback)
-                   opts
-                   (assoc opts :callback cb))
-            {:keys
-             [err err-data warning-count exception-count]
-             :as ret}              (eastwood.lint/eastwood-core opts)
-            ws (map #(assoc (select-keys % [:line :column :msg])
-                            :file (str (:uri %))
-                            :level :warning) @lint-warnings)]
-        ;;{:warnings @lint-warnings :err err   :err-data err-data}
-        (println ret)
-        (clojure.data.json/write-str ws))
-      ;(eastwood.lint/eastwood {:source-paths ["src"] :namespaces [ns] } )
-      ))
+  (let [lint-warnings (atom [])
+        opts (merge {:cwd (.getCanonicalFile (clojure.java.io/file "."))
+                     :namespaces [ns]} opts)
+        cb (fn cb [info]
+             (case (:kind info)
+               :lint-warning (swap! lint-warnings conj (:warn-data info))
+               :default))  ; do nothing with other kinds of callbacks
+        opts (if (contains? opts :callback)
+               opts
+               (assoc opts :callback cb))
+        {:keys
+         [err err-data warning-count exception-count]
+         :as ret}              (eastwood.lint/eastwood-core opts)
+        ws (map #(assoc (select-keys % [:line :column :msg])
+                        :file (str (:uri %))
+                        :level :warning) @lint-warnings)]
+    ;;{:warnings @lint-warnings :err err   :err-data err-data}
+    (println ret)
+    (clojure.data.json/write-str ws))
+                                        ;(eastwood.lint/eastwood {:source-paths ["src"] :namespaces [ns] } )
+  )
 
 (defn check-tc [ns]
-  (do (require 'clojure.core.typed)
-      (require 'clojure.data.json)
-      (clojure.data.json/write-str
-       (map (fn [e] (assoc (:env (ex-data e))
-                          :level :error
-                          :msg (.getMessage e)))
-            (:delayed-errors (clojure.core.typed/check-ns-info ns))))))
+  (clojure.data.json/write-str
+   (map (fn [e] (assoc (:env (ex-data e))
+                      :level :error
+                      :msg (.getMessage e)))
+        (:delayed-errors (clojure.core.typed/check-ns-info ns)))))
 
 
 (defn check-kb [fname]
-  (require 'kibit.check)
-  (require 'clojure.data.json)
   (let  [_squiggly (atom [])]
         (kibit.check/check-file
          fname
@@ -95,6 +93,6 @@ Keys in a warning map:
                                   :msg (str "Kibit suggests using\n" (print-str (:alt e)) "\ninstead of \n" (print-str (:expr e)))
                                   :file (:file e)
                                   :line (:line e)
-                                  :level :warning)))))
-  (clojure.data.json/write-str @_squiggly))
+                                  :level :warning))))
+        (clojure.data.json/write-str @_squiggly)))
 
