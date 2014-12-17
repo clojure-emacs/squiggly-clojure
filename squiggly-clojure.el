@@ -143,9 +143,8 @@ Error objects are passed in a list to the CALLBACK function."
 	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
  	      (parse-json value))
 	(squiggly-clojure-message 1 "Finished eastwood check."))
-      nil
-      ;;(lambda (_buffer out)	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))	      (parse-ew out)))
-      nil
+      (squiggly-clojure-message-cb 2)
+      (squiggly-clojure-message-cb 2)
       nil
       (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Eastwood not run: %s" ex)))))
 

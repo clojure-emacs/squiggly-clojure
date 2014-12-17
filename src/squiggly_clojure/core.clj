@@ -68,6 +68,7 @@ Keys in a warning map:
                             :file (str (:uri %))
                             :level :warning) @lint-warnings)]
         ;;{:warnings @lint-warnings :err err   :err-data err-data}
+        (println ret)
         (clojure.data.json/write-str ws))
       ;(eastwood.lint/eastwood {:source-paths ["src"] :namespaces [ns] } )
       ))
@@ -95,7 +96,4 @@ Keys in a warning map:
                                   :line (:line e)
                                   :level :warning)))))
   (clojure.data.json/write-str @_squiggly))
-
-
-
 
