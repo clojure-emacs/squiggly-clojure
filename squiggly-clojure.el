@@ -48,9 +48,11 @@
 	  (const :tag "Muted" 0)))
 
 (defun cmdf-ew (ns)
-  "Generate eastwood command for NS."
-  (format "(do (require 'eastwood.lint)
-    (eastwood.lint/eastwood {:source-paths [\"src\"] :namespaces ['%s] } ))" ns))
+  "Generate core.typed command from NS."
+  (format
+   "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))" ns))
+
+
 (defun parse-ew (out)
   "Parse an output chunk from eastwood: OUT."
   (delq nil
@@ -65,15 +67,10 @@
 		      ))))
 		(split-string out "\n"))))
 
-
 (defun cmdf-tc (ns)
   "Generate core.typed command from NS."
   (format
-   "(do (require 'clojure.core.typed)
-                   (require 'clojure.data.json)
-                   (clojure.data.json/write-str
-                      (map (fn [e] (assoc (:env (ex-data e)) :msg (.getMessage e)))
-                      (:delayed-errors (clojure.core.typed/check-ns-info '%s)))))" ns))
+   "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))" ns))
 
 (defun get-rec-from-alist (al ks)
   "Extract a list of the values in AL with keys KS."
@@ -89,13 +86,8 @@
 ;; Kibit command; just add filename.
 (defun cmdf-kb (fname)
   "Generate kibit command from FNAME."
-      (format
-       "(do (require 'kibit.check)
-                      (require 'clojure.data.json)
-                      (def _squiggly (atom []))
-                      (kibit.check/check-file \"%s\"
-                         :reporter (fn [e] (swap! _squiggly conj (-> e (update-in [:expr] print-str) (update-in [:alt] print-str)))))
-                      (clojure.data.json/write-str @_squiggly))" fname))
+  (format
+   "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-kb \"%s\"))" fname))
 
 (defun parse-kb (s)
   "Parse kibit output in JSON form from string S."
@@ -183,7 +175,6 @@ Error objects are passed in a list to the CALLBACK function."
 		 buffer
 		 (lambda (_buffer _value)
 		   (squiggly-clojure-message 1 "Finished all clj checks.")
-		   (squiggly-clojure-message 2 errors)
 		   (funcall callback 'finished errors))
 		 nil
 		 nil
