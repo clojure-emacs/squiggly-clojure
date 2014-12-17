@@ -106,10 +106,10 @@ Uses CHECKER, BUFFER, FNAME and ERROR-TYPE unmodified."
 			   :buffer buffer
 			   :filename fname)))
 
-(defun squiggly-clojure-message (level msg)
-  "When chat level >= LEVEL, display MSG."
-  (when (>= squiggly-clojure-chat-level level)
-    (message msg)))
+(defmacro squiggly-clojure-message (level msg-expr)
+  "When chat level >= LEVEL, display MSG-EXPR."
+  `(when (>= ,squiggly-clojure-chat-level ,level)
+     (message ,msg-expr)))
 
 (defun flycheck-clj-cider-start (checker callback)
   "Invoked by flycheck, which provides CHECKER for identification.
