@@ -7,3 +7,4 @@ target/*
 # Packaging
 .cask
 
+/pom.xml
