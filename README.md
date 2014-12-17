@@ -3,11 +3,19 @@ squiggly-clojure
 
 ![type error](./cant/squiggle1.png)
 
-Flycheck checker for Clojure, using eastwood, core.typed and kibit
-via cider.
+Flycheck checker for Clojure, using
+[eastwood](https://github.com/jonase/eastwood),
+[core.typed](http://typedclojure.org/)
+and
+[kibit](https://github.com/jonase/kibit)
+via
+[cider](https://github.com/clojure-emacs/cider).
 
 See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
 
+### Warning!
+
+Please read the documentation for each linter.  Some of them come with warnings.
 
 ### Dependencies in emacs:
 
@@ -27,23 +35,40 @@ auto-documentation.
   
 ### Dependencies in Clojure:
 
-* eastwood
-* cider
-* core.typed
+The clojure code to invoke the various specific linters is in
 
-If any these are missing, the corresponding checks will fail
-silently but the others will run.  Note that all checks run within
-the cider REPL.  Eastwood, at least, will load (but not evaluate)
-the source file, so beware of side effects.
+~~~.clj
+[acyclic/squiggly-clojure "0.1.0-SNAPSHOT"
+   :exclusions [[org.clojure/core.typed jonase/eastwood jonase/kibit]]]
+~~~
 
-You can include the following as regular ```:dependencies``` or
-in ```:profiles {:dev {:dependencies [ ... ] }} ```:
+To include specific checks, either remove them from the ```:exclusions``` list or declare
+them directly as dependencies:
 
 ~~~.clj
   [org.clojure/core.typed "0.2.72"]
   [jonase/eastwood "0.2.0" :exclusions [org.clojure/clojure]]
   [jonase/kibit "0.0.8"]
 ~~~
+
+### Debugging
+
+Many things can go wrong.
+
+* Neither ```eastwood``` nor ```kibit``` is usually run repeatedly and in
+  the REPL, so we may trigger bugs that don't matter to other people.
+* There may be circumstances under which the checkers return output
+  in an unanticipated form, which will then be unparseable in emacs.
+* I don't really know emacs lisp.  Could be an issue.
+
+If, due to one of these or other problems, ```flycheck``` does not
+receive the proper callbacks, it may be stuck in a state where it
+will never try to check again.  To reset (modulo some memory leaks perhaps)
+try turning ```flycheck-mode``` off and then on.
+
+If something mysterious is happening, you can set ```squiggly-clojure-chat-level``` to a number
+higher than 1 and examine the contents of ```**Messages**```.  (You can also set it to 0 and
+shut off verbal communication entirely.)
 
 
 ### TODO:
