@@ -53,7 +53,8 @@ Keys in a warning map:
   (do (require 'eastwood.lint)
       (require 'clojure.data.json)
       (let [lint-warnings (atom [])
-            opts (merge {:cwd (.getCanonicalFile (clojure.java.io/file "."))} opts)
+            opts (merge {:cwd (.getCanonicalFile (clojure.java.io/file "."))
+                         :namespaces [ns]} opts)
             cb (fn cb [info]
                  (case (:kind info)
                    :lint-warning (swap! lint-warnings conj (:warn-data info))

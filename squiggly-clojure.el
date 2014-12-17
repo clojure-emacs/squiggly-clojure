@@ -127,7 +127,7 @@ Uses CHECKER, BUFFER, FNAME unmodified."
 Error objects are passed in a list to the CALLBACK function."
   (let* ((buffer (current-buffer))
 	 (fname  (buffer-file-name buffer))
-	 (ns     (cider-current-ns))
+	 (ns     (clojure-find-ns))
 	 (cmd-ew (cmdf-ew ns))
 	 (cmd-tc (cmdf-tc ns))
 	 (cmd-kb (cmdf-kb fname))
