@@ -47,8 +47,10 @@
 	  (const :tag "Info" 1)
 	  (const :tag "Muted" 0)))
 
-(setq cmdf-ew "(do (require 'eastwood.lint)
-    (eastwood.lint/eastwood {:source-paths [\"src\"] :namespaces ['%s] } ))")
+(defun cmdf-ew (ns)
+  "Generate eastwood command for NS."
+  (format "(do (require 'eastwood.lint)
+    (eastwood.lint/eastwood {:source-paths [\"src\"] :namespaces ['%s] } ))" ns))
 (defun parse-ew (out)
   "Parse an output chunk from eastwood: OUT."
   (delq nil
@@ -64,11 +66,14 @@
 		(split-string out "\n"))))
 
 
-(setq cmdf-tc "(do (require 'clojure.core.typed)
+(defun cmdf-tc (ns)
+  "Generate core.typed command from NS."
+  (format
+   "(do (require 'clojure.core.typed)
                    (require 'clojure.data.json)
                    (clojure.data.json/write-str
                       (map (fn [e] (assoc (:env (ex-data e)) :msg (.getMessage e)))
-                      (:delayed-errors (clojure.core.typed/check-ns-info '%s)))))")
+                      (:delayed-errors (clojure.core.typed/check-ns-info '%s)))))" ns))
 
 (defun get-rec-from-alist (al ks)
   "Extract a list of the values in AL with keys KS."
@@ -82,12 +87,15 @@
 
 
 ;; Kibit command; just add filename.
-(setq cmdf-kb "(do (require 'kibit.check)
+(defun cmdf-kb (fname)
+  "Generate kibit command from FNAME."
+      (format
+       "(do (require 'kibit.check)
                       (require 'clojure.data.json)
                       (def _squiggly (atom []))
                       (kibit.check/check-file \"%s\"
                          :reporter (fn [e] (swap! _squiggly conj (-> e (update-in [:expr] print-str) (update-in [:alt] print-str)))))
-                      (clojure.data.json/write-str @_squiggly))")
+                      (clojure.data.json/write-str @_squiggly))" fname))
 
 (defun parse-kb (s)
   "Parse kibit output in JSON form from string S."
@@ -111,19 +119,25 @@ Uses CHECKER, BUFFER, FNAME and ERROR-TYPE unmodified."
   (when (>= squiggly-clojure-chat-level level)
     (message msg)))
 
+(defun squiggly-clojure-message-cb (level)
+  "Create callback that prints msg when chat level >= LEVEL."
+  (lambda (_buffer msg) (when (>= squiggly-clojure-chat-level level)
+		     (message msg))))
+
 (defun flycheck-clj-cider-start (checker callback)
   "Invoked by flycheck, which provides CHECKER for identification.
 Error objects are passed in a list to the CALLBACK function."
   (let* ((buffer (current-buffer))
 	 (fname  (buffer-file-name buffer))
 	 (ns     (cider-current-ns))
-	 (cmd-ew (format cmdf-ew ns))
-	 (cmd-tc (format cmdf-tc ns))
-	 (cmd-kb (format cmdf-kb fname))
+	 (cmd-ew (cmdf-ew ns))
+	 (cmd-tc (cmdf-tc ns))
+	 (cmd-kb (cmdf-kb fname))
 	 (errors ()))
 
     ;; cider-eval requests are queued
 
+    (squiggly-clojure-message 2 cmd-ew)
     (cider-tooling-eval cmd-ew
      (nrepl-make-response-handler
       buffer
@@ -136,18 +150,20 @@ Error objects are passed in a list to the CALLBACK function."
       nil
       (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Eastwood not run: %s" ex)))))
 
+    (squiggly-clojure-message 2 cmd-tc)
     (cider-tooling-eval cmd-tc
      (nrepl-make-response-handler
       buffer
       (lambda (_buffer value)
 	(squiggly-clojure-message 1 "Finished core.typed check.")
 	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'error) errors))
-	      (parse-tc-json value)))
-      nil
-      nil
+ 	      (parse-tc-json value)))
+      (squiggly-clojure-message-cb 2)
+      (squiggly-clojure-message-cb 2)
       nil
       (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Typecheck not run: %s" ex)))))
 
+    (squiggly-clojure-message 2 cmd-kb)
     (cider-tooling-eval
      cmd-kb
      (nrepl-make-response-handler
@@ -156,20 +172,21 @@ Error objects are passed in a list to the CALLBACK function."
 	(squiggly-clojure-message 1 "Finished kibit check.")
 	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname 'warning) errors))
 	      (parse-kb value)))
-      nil
-      nil
+      (squiggly-clojure-message-cb 2)
+      (squiggly-clojure-message-cb 2)
       nil
       (lambda (_buffer ex _rex _sess) (squiggly-clojure-message 1 (format "Kibit not run: %s %s" cmd-kb ex)))))
 
+    (squiggly-clojure-message 2 "Launched all checkers.")
     (cider-tooling-eval "true"
 		(nrepl-make-response-handler
 		 buffer
 		 (lambda (_buffer _value)
 		   (squiggly-clojure-message 1 "Finished all clj checks.")
-		   ;;(print errors)
+		   (squiggly-clojure-message 2 errors)
 		   (funcall callback 'finished errors))
-		 (lambda (_buffer out))
-		 (lambda (_buffer err))
+		 nil
+		 nil
 		 '()))
     ))
 
