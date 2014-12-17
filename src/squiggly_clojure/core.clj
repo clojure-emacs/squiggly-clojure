@@ -89,10 +89,11 @@ Keys in a warning map:
         (kibit.check/check-file
          fname
          :reporter (fn [e] (swap! _squiggly conj
-                                 (-> e
-                                   (assoc :level :warning)
-                                   (update-in [:expr] print-str)
-                                   (update-in [:alt] print-str))))))
+                                 (hash-map
+                                  :msg (str "Kibit suggests using\n" (print-str (:alt e)) "\ninstead of \n" (print-str (:expr e)))
+                                  :file (:file e)
+                                  :line (:line e)
+                                  :level :warning)))))
   (clojure.data.json/write-str @_squiggly))
 
 

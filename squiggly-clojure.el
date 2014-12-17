@@ -170,7 +170,7 @@ Error objects are passed in a list to the CALLBACK function."
       (lambda (_buffer value)
 	(squiggly-clojure-message 1 "Finished kibit check.")
 	(mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
-	      (parse-kb value)))
+	      (parse-json value)))
       (squiggly-clojure-message-cb 2)
       (squiggly-clojure-message-cb 2)
       nil
