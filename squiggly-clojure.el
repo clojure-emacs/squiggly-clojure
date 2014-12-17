@@ -34,7 +34,7 @@
 (require 'json)
 
 ;;;###autoload
-t(defgroup squiggly-clojure nil
+(defgroup squiggly-clojure nil
   "Clojure support for Flycheck")
 
 ;;;###autoload
