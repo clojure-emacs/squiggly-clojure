@@ -56,6 +56,9 @@
 	  (const :tag "Kibit" kibit)
 	  (const :tag "Typed Clojure" typed)))
 
+
+(make-variable-buffer-local 'flycheck-idle-change-delay)
+
 (defun squiggly-clojure-message (level msg)
   "When chat level >= LEVEL, display MSG."
   (when (>= squiggly-clojure-chat-level level)
@@ -66,62 +69,36 @@
   (lambda (_buffer msg) (when (>= squiggly-clojure-chat-level level)
 		     (message msg))))
 
-(defun get-rec-from-alist (al ks)
+(defun squiggly-get-rec-from-alist (al ks)
   "Extract a list of the values in AL with keys KS."
   (mapcar (lambda (k) (cdr (assoc k al))) ks))
 
 ;; Nb. the clojure output gets double-escaped, so we double-decode.
-(defun parse-json (s)
+(defun squiggly-parse-json (s)
   "Extract file, line, column and msg fields from an alist, which was probably created by parsing the JSON form of core.typed output in parameter S."
   (squiggly-clojure-message 2 s)
-  (mapcar (lambda (w) (get-rec-from-alist w '(file line column msg level)))
+  (mapcar (lambda (w) (squiggly-get-rec-from-alist w '(file line column msg level)))
 	  (json-read-from-string (json-read-from-string s))))
 
 
-(defun cmdf-ew (ns)
+(defun squiggly-cmdf-ew (ns)
   "Generate core.typed command from NS."
   (format
    "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))" ns))
 
-
-(defun Xparse-ew (out)
-  "Parse an output chunk from eastwood: OUT."
-  (delq nil
-	(mapcar (lambda (s)
-	       (let ((r "^\\([^[:space:]]+\\)\\:\\([[:digit:]]+\\)\\:\\([[:digit:]]+\\)\\:[[:space:]]*\\(.*\\)"))
-		 (if (string-match r s)
-		     (list
-		      (match-string 1 s)                     ;; file
-		      (string-to-number (match-string 2 s))  ;; line
-		      (string-to-number (match-string 3 s))  ;; col
-		      (match-string 4 s)                     ;; msg
-		      ))))
-		(split-string out "\n"))))
-
-
-(defun cmdf-tc (ns)
+(defun squiggly-cmdf-tc (ns)
   "Generate core.typed command from NS."
   (format
    "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))" ns))
 
 
 ;; Kibit command; just add filename.
-(defun cmdf-kb (fname)
+(defun squiggly-cmdf-kb (fname)
   "Generate kibit command from FNAME."
   (format
    "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-kb \"%s\"))" fname))
 
-(defun parse-kb (s)
-  "Parse kibit output in JSON form from string S."
-  (let ((ws (json-read-from-string (json-read-from-string s))))
-    (mapcar (lambda (w) (append (get-rec-from-alist w '(file line column))
-			   (pcase-let* ((`(,alt ,expr) (get-rec-from-alist  w '(alt expr))))
-			     (list
-			      (format "Kibit: Consider\n%s\ninstead of\n%s" alt expr)
-			      "warning"))))
-	    ws)))
-
-(defun tuple-to-error (w checker buffer fname)
+(defun squiggly-tuple-to-error (w checker buffer fname)
   "Convert W of form '(file, line, column, message) to flycheck error object.
 Uses CHECKER, BUFFER, FNAME unmodified."
   (pcase-let* ((`(,file ,line ,column ,msg ,level) w))
@@ -136,9 +113,9 @@ Error objects are passed in a list to the CALLBACK function."
   (let* ((buffer (current-buffer))
 	 (fname  (buffer-file-name buffer))
 	 (ns     (clojure-find-ns))
-	 (cmd-ew (cmdf-ew ns))
-	 (cmd-tc (cmdf-tc ns))
-	 (cmd-kb (cmdf-kb fname))
+	 (cmd-ew (squiggly-cmdf-ew ns))
+	 (cmd-tc (squiggly-cmdf-tc ns))
+	 (cmd-kb (squiggly-cmdf-kb fname))
 	 (errors ()))
 
     ;; cider-eval requests are queued
@@ -149,8 +126,8 @@ Error objects are passed in a list to the CALLBACK function."
 			  (nrepl-make-response-handler
 			   buffer
 			   (lambda (_buffer value)
-			     (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
-				   (parse-json value))
+			     (mapc (lambda (w) (push (squiggly-tuple-to-error w checker buffer fname) errors))
+				   (squiggly-parse-json value))
 			     (squiggly-clojure-message 1 "Finished eastwood check."))
 			   (squiggly-clojure-message-cb 2)
 			   (squiggly-clojure-message-cb 2)
@@ -164,8 +141,8 @@ Error objects are passed in a list to the CALLBACK function."
 			   buffer
 			   (lambda (_buffer value)
 			     (squiggly-clojure-message 1 "Finished core.typed check.")
-			     (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
-				   (parse-json value)))
+			     (mapc (lambda (w) (push (squiggly-tuple-to-error w checker buffer fname) errors))
+				   (squiggly-parse-json value)))
 			   (squiggly-clojure-message-cb 2)
 			   (squiggly-clojure-message-cb 2)
 			   nil
@@ -179,8 +156,8 @@ Error objects are passed in a list to the CALLBACK function."
 	buffer
 	(lambda (_buffer value)
 	  (squiggly-clojure-message 1 "Finished kibit check.")
-	  (mapc (lambda (w) (push (tuple-to-error w checker buffer fname) errors))
-		(parse-json value)))
+	  (mapc (lambda (w) (push (squiggly-tuple-to-error w checker buffer fname) errors))
+		(squiggly-parse-json value)))
 	(squiggly-clojure-message-cb 2)
 	(squiggly-clojure-message-cb 2)
 	nil
