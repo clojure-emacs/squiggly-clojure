@@ -17,30 +17,42 @@ See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
 
 Please read the documentation for each linter.  Some of them come with warnings.
 
-### Dependencies in emacs:
+### Installation
 
-* cider
-* flycheck
-* flycheck-pos-tip
+The package is available on [melpa](http://melpa.org/):
 
-The latter is strongly recommended, so that linting and type errors don't clash with cider
-auto-documentation.
+    M-x package-install squiggly-clojure
+
+Add this to you `.emacs`:
 
 ~~~.el
+(require 'squiggly-clojure)
+(setq squiggly-clojure-checkers '(eastwood))
 (add-hook 'cider-mode-hook (lambda () (flycheck-mode 1)))
+~~~
+
+Installing [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip) as well is strongly recommended, so that linting and type errors don't clash with cider's eldoc information.
+
+    M-x package-install flycheck-pos-tip
+
+And add this to your `.emacs`:
+
+~~~.el
 (eval-after-load 'flycheck
   '(custom-set-variables
    '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
 ~~~
-  
+
 ### Dependencies in Clojure:
 
-The clojure code to invoke the various specific linters is in
+The clojure code used to invoke the various specific linters is in
 
 ~~~.clj
 [acyclic/squiggly-clojure "0.1.0-SNAPSHOT"]
 
 ~~~
+
+You should probably add that to your `profiles.clj`.
 
 It pulls in
 
