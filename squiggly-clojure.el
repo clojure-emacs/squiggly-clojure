@@ -57,8 +57,6 @@
 	  (const :tag "Typed Clojure" typed)))
 
 
-(make-variable-buffer-local 'flycheck-idle-change-delay)
-
 (defun squiggly-clojure-message (level msg)
   "When chat level >= LEVEL, display MSG."
   (when (>= squiggly-clojure-chat-level level)
