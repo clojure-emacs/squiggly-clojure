@@ -19,15 +19,17 @@ Please read the documentation for each linter.  Some of them come with warnings.
 
 ### Installation
 
-The package is available on [melpa](http://melpa.org/):
+The package ~~is available~~ will soon be on [melpa](http://melpa.org/):
 
     M-x package-install squiggly-clojure
 
-Add this to you `.emacs`:
+(In the mean time, just put the the ```squiggly-clojure.el``` somwewhere on your
+load path.)
+
+Add to your ```.emacs```:
 
 ~~~.el
 (require 'squiggly-clojure)
-(setq squiggly-clojure-checkers '(eastwood))
 (add-hook 'cider-mode-hook (lambda () (flycheck-mode 1)))
 ~~~
 
