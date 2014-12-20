@@ -3,7 +3,7 @@
 ;; Author: Peter Fraenkel <pnf@podsnap.com>
 ;; URL:
 ;; Version: 1.1.0
-;; Package-Requires: ((clojure-mode "2.1.1") (cider "0.8.1") (json "1.4") (flycheck "0.22-cvs1"))
+;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
