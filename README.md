@@ -50,8 +50,7 @@ And add this to your `.emacs`:
 The clojure code used to invoke the various specific linters is in
 
 ~~~.clj
-[acyclic/squiggly-clojure "0.1.0-SNAPSHOT"]
-
+[acyclic/squiggly-clojure "0.1.1-SNAPSHOT"]
 ~~~
 
 You should probably add that to your `profiles.clj`.
@@ -60,7 +59,7 @@ It pulls in
 
 ~~~.clj
   [org.clojure/core.typed "0.2.72"]
-  [jonase/eastwood "0.2.0" :exclusions [org.clojure/clojure]]
+  [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]
   [jonase/kibit "0.0.8"]
 ~~~
 
