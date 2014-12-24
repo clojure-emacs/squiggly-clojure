@@ -3,7 +3,7 @@
 ;; Author: Peter Fraenkel <pnf@podsnap.com>
 ;; URL:
 ;; Version: 1.1.0
-;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1"))
+;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1") (emacs "24"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
