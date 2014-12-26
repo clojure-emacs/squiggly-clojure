@@ -209,17 +209,38 @@ Return a list of parsed `flycheck-error' objects."
                          form checker ex)))))))
 
 (defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
-  "Define a Cider syntax checker."
+  "Define a Cider syntax checker with NAME, DOCSTRING and PROPERTIES.
+
+NAME, DOCSTRING, and PROPERTIES are like for
+`flycheck-define-generic-checker', except that `:start' and
+`:modes' are invalid PROPERTIES.  A syntax checker defined with
+this function will always check in `clojure-mode', and only if
+`cider-mode' is enabled.
+
+Instead of `:start', this syntax checker requires a `:form
+FUNCTION' property.  FUNCTION takes the current Clojure namespace
+as single argument, and shall return a string containing a
+Clojure form to be sent to Cider to check the current buffer."
   (declare (indent 1)
            (doc-string 2))
-  (let ((form (plist-get properties :form)))
+  (let* ((form (plist-get properties :form))
+         (orig-predicate (plist-get properties :predicate))
+         (our-predicate (lambda () (bound-and-true-p cider-mode))))
+
+    (when (plist-get :start properties)
+      (error "Checker %s may not have :start" name))
+    (when (plist-get :modes properties)
+      (error "Checker %s may not have :modes" name))
     (unless (functionp form)
-      (error ":form %s not a valid function" form))
+      (error ":form %s of %s not a valid function" form name))
     (apply #'flycheck-define-generic-checker
            name docstring
            :start #'flycheck-clojure-start-cider
            :modes '(clojure-mode)
-           :predicate (lambda () (bound-and-true-p cider-mode))
+           :predicate (if orig-predicate
+                          (lambda () (and (funcall our-predicate)
+                                          (funcall orig-predicate)))
+                        our-predicate)
            properties)
 
     (put name 'flycheck-clojure-form form)))
@@ -231,7 +252,32 @@ See URL `https://github.com/jonase/eastwood' and URL
 `https://github.com/clojure-emacs/cider/' for more information."
   :form (lambda (ns)
           (format "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))"
-                  ns)))
+                  ns))
+  :next-checkers '(clojure-cider-kibit clojure-cider-typed))
+
+(flycheck-clojure-define-cider-checker 'clojure-cider-kibit
+  "A syntax checker for Clojure, using Kibit in Cider.
+
+See URL `https://github.com/jonase/kibit' and URL
+`https://github.com/clojure-emacs/cider/' for more information."
+  :form (lambda (_)
+          (format
+           "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-kb %s))"
+           ;; Escape file name for Clojure
+           (flycheck-sexp-to-string (buffer-file-name))))
+  :predicate (lambda () (buffer-file-name))
+  :next-checkers '(clojure-cider-typed))
+
+(flycheck-clojure-define-cider-checker 'clojure-cider-typed
+  "A syntax checker for Clojure, using Typed Clojure in Cider.
+
+See URL `https://github.com/clojure-emacs/cider/' for more
+information."
+  :form (lambda (ns)
+          (format
+           "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))"
+           ns)))
+
 
 (provide 'squiggly-clojure)
 
