@@ -180,12 +180,20 @@ Return a list of parsed `flycheck-error' objects."
   (let ((error-objects (json-read-from-string (json-read-from-string value))))
     (mapcar (lambda (o)
               (let-alist o
-                (let ((filename (if .file
-                                    (url-filename (url-generic-parse-url .file))
-                                  (buffer-file-name))))
+                ;; Use the file name reported by the syntax checker, but only if
+                ;; its absolute, because typed reports relative file names that
+                ;; are hard to expand correctly, since they are relative to the
+                ;; source directory (not the project directory).
+                (let* ((parsed-file (when .file
+                                      (url-filename
+                                       (url-generic-parse-url .file))))
+                       (filename (if (and parsed-file
+                                          (file-name-absolute-p parsed-file))
+                                     parsed-file
+                                   (buffer-file-name))))
                   (flycheck-error-new-at .line .column (intern .level) .msg
-                                               :checker checker
-                                               :filename filename))))
+                                         :checker checker
+                                         :filename filename))))
             error-objects)))
 
 (defun flycheck-clojure-start-cider (checker callback)
