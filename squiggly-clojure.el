@@ -278,6 +278,15 @@ information."
            "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))"
            ns)))
 
+;;;###autoload
+(defun flycheck-clojure-setup ()
+  "Setup Flycheck for Clojure."
+  (interactive)
+  ;; Add checkers in reverse order, because `add-to-list' adds to front.
+  (dolist (checker '(clojure-cider-typed
+                     clojure-cider-kibit
+                     clojure-cider-eastwood))
+    (add-to-list 'flycheck-checkers checker)))
 
 (provide 'squiggly-clojure)
 
