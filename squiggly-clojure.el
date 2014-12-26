@@ -1,9 +1,16 @@
 ;;; squiggly-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
+
+;; Copyright © 2014 Peter Fraenkel
+;; Copyright (C) 2014 Sebastian Wiesner <swiesner@lunaryorn.com>
 ;;
 ;; Author: Peter Fraenkel <pnf@podsnap.com>
-;; URL:
+;;     Sebastian Wiesner <swiesner@lunaryorn.com>
+;; Maintainer: Peter Fraenkel <pnf@podsnap.com>
+;; URL: https://github.com/clojure-emacs/squiggly-clojure
 ;; Version: 1.1.0
 ;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1") (let-alist "1.0.1") (emacs "24"))
+
+;; This file is not part of GNU Emacs.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,10 +25,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-;; This file is not part of GNU Emacs.
-
-;; Copyright © 2014 Peter Fraenkel
-;;
 ;;; Commentary:
 
 ;; Add Clojure support to Flycheck.
