@@ -216,7 +216,8 @@ Checks for `cider-mode', and a current nREPL connection.
 Standard predicate for cider checkers."
   (let ((connection-buffer (nrepl-current-connection-buffer)))
     (and (bound-and-true-p cider-mode)
-         connection-buffer (buffer-live-p connection-buffer))))
+         connection-buffer
+         (buffer-live-p (get-buffer connection-buffer)))))
 
 (defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
   "Define a Cider syntax checker with NAME, DOCSTRING and PROPERTIES.
