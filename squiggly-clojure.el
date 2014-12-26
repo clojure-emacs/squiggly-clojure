@@ -208,6 +208,16 @@ Return a list of parsed `flycheck-error' objects."
                  (format "Form %s of checker %s failed: %s"
                          form checker ex)))))))
 
+(defun flycheck-clojure-may-use-cider-checker ()
+  "Determine whether a cider checker may be used.
+
+Checks for `cider-mode', and a current nREPL connection.
+
+Standard predicate for cider checkers."
+  (let ((connection-buffer (nrepl-current-connection-buffer)))
+    (and (bound-and-true-p cider-mode)
+         connection-buffer (buffer-live-p connection-buffer))))
+
 (defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
   "Define a Cider syntax checker with NAME, DOCSTRING and PROPERTIES.
 
@@ -224,8 +234,7 @@ Clojure form to be sent to Cider to check the current buffer."
   (declare (indent 1)
            (doc-string 2))
   (let* ((form (plist-get properties :form))
-         (orig-predicate (plist-get properties :predicate))
-         (our-predicate (lambda () (bound-and-true-p cider-mode))))
+         (orig-predicate (plist-get properties :predicate)))
 
     (when (plist-get :start properties)
       (error "Checker %s may not have :start" name))
@@ -238,9 +247,10 @@ Clojure form to be sent to Cider to check the current buffer."
            :start #'flycheck-clojure-start-cider
            :modes '(clojure-mode)
            :predicate (if orig-predicate
-                          (lambda () (and (funcall our-predicate)
-                                          (funcall orig-predicate)))
-                        our-predicate)
+                          (lambda ()
+                            (and (flycheck-clojure-may-use-cider-checker)
+                                 (funcall orig-predicate)))
+                        #'flycheck-clojure-may-use-cider-checker)
            properties)
 
     (put name 'flycheck-clojure-form form)))
