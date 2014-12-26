@@ -20,12 +20,17 @@
 
 ;; This file is not part of GNU Emacs.
 
-
 ;; Copyright © 2014 Peter Fraenkel
 ;;
 ;;; Commentary:
-;; Flycheck support for Clojure
 
+;; Add Clojure support to Flycheck.
+;;
+;; Provide syntax checkers to check Clojure code using a running Cider repl.
+;;
+;; Installation:
+;;
+;; (eval-after-load 'flycheck '(flycheck-clojure-setup))
 
 ;;; Code:
 
