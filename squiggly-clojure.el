@@ -210,7 +210,13 @@ Return a list of parsed `flycheck-error' objects."
                    (flycheck-clojure-parse-cider-errors value checker))))
       nil                               ; stdout
       nil                               ; stderr
-      nil                               ; done
+      (lambda (_)
+        ;; If the evaluation completes without returning any value, there has
+        ;; gone something wrong.  Ideally, we'd report *what* was wrong, but
+        ;; `nrepl-make-response-handler' is close to useless for this :(,
+        ;; because it just `message's for many status codes that are errors for
+        ;; us :(
+        (funcall callback 'errored "Done with no errors"))
       (lambda (_buffer ex _rootex _sess)
         (funcall callback 'errored
                  (format "Form %s of checker %s failed: %s"
