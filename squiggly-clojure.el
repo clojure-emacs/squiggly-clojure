@@ -3,7 +3,7 @@
 ;; Author: Peter Fraenkel <pnf@podsnap.com>
 ;; URL:
 ;; Version: 1.1.0
-;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1") (emacs "24"))
+;; Package-Requires: ((cider "0.8.1") (flycheck "0.22-cvs1") (let-alist "1.0.1") (emacs "24"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@
 (require 'cider-client)
 (require 'flycheck)
 (require 'json)
+(require 'url-parse)
+(eval-when-compile (require 'let-alist))
 
 ;;;###autoload
 (defgroup squiggly-clojure nil
@@ -78,11 +80,6 @@
   (mapcar (lambda (w) (squiggly-get-rec-from-alist w '(file line column msg level)))
           (json-read-from-string (json-read-from-string s))))
 
-
-(defun squiggly-cmdf-ew (ns)
-  "Generate core.typed command from NS."
-  (format
-   "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))" ns))
 
 (defun squiggly-cmdf-tc (ns)
   "Generate core.typed command from NS."
@@ -173,13 +170,68 @@ Error objects are passed in a list to the CALLBACK function."
                  '()))
     ))
 
-(flycheck-define-generic-checker 'clojure-cider-checker
-  "A syntax checker for Clojure using Cider"
-  :start #'flycheck-clj-cider-start
-  :modes '(clojure-mode)
-  :predicate (lambda () cider-mode))
+(defun flycheck-clojure-parse-cider-errors (value checker)
+  "Parse cider errors from JSON VALUE from CHECKER.
 
-(add-to-list 'flycheck-checkers 'clojure-cider-checker)
+Return a list of parsed `flycheck-error' objects."
+  ;; Parse the nested JSON from Cider.  The outer JSON contains the return value
+  ;; from Cider, and the inner JSON the errors returned by the individual
+  ;; checker.
+  (let ((error-objects (json-read-from-string (json-read-from-string value))))
+    (mapcar (lambda (o)
+              (let-alist o
+                (let ((filename (if .file
+                                    (url-filename (url-generic-parse-url .file))
+                                  (buffer-file-name))))
+                  (flycheck-error-new-at .line .column (intern .level) .msg
+                                               :checker checker
+                                               :filename filename))))
+            error-objects)))
+
+(defun flycheck-clojure-start-cider (checker callback)
+  "Start a cider syntax CHECKER with CALLBACK."
+  (let ((ns (clojure-find-ns))
+        (form (get checker 'flycheck-clojure-form)))
+    (cider-tooling-eval
+     (funcall form ns)
+     (nrepl-make-response-handler
+      (current-buffer)
+      (lambda (buffer value)
+        (with-current-buffer buffer
+          (funcall callback 'finished
+                   (flycheck-clojure-parse-cider-errors value checker))))
+      nil                               ; stdout
+      nil                               ; stderr
+      nil                               ; done
+      (lambda (_buffer ex _rootex _sess)
+        (funcall callback 'errored
+                 (format "Form %s of checker %s failed: %s"
+                         form checker ex)))))))
+
+(defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
+  "Define a Cider syntax checker."
+  (declare (indent 1)
+           (doc-string 2))
+  (let ((form (plist-get properties :form)))
+    (unless (functionp form)
+      (error ":form %s not a valid function" form))
+    (apply #'flycheck-define-generic-checker
+           name docstring
+           :start #'flycheck-clojure-start-cider
+           :modes '(clojure-mode)
+           :predicate (lambda () (bound-and-true-p cider-mode))
+           properties)
+
+    (put name 'flycheck-clojure-form form)))
+
+(flycheck-clojure-define-cider-checker 'clojure-cider-eastwood
+  "A syntax checker for Clojure, using Eastwood in Cider.
+
+See URL `https://github.com/jonase/eastwood' and URL
+`https://github.com/clojure-emacs/cider/' for more information."
+  :form (lambda (ns)
+          (format "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-ew '%s))"
+                  ns)))
 
 (provide 'squiggly-clojure)
 
