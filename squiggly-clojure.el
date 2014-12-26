@@ -177,8 +177,7 @@ Error objects are passed in a list to the CALLBACK function."
   "A syntax checker for Clojure using Cider"
   :start #'flycheck-clj-cider-start
   :modes '(clojure-mode)
-  :predicate ((lambda () cider-mode))
-  )
+  :predicate (lambda () cider-mode))
 
 (add-to-list 'flycheck-checkers 'clojure-cider-checker)
 
