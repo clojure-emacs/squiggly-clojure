@@ -197,8 +197,8 @@ Return a list of parsed `flycheck-error' objects."
      (nrepl-make-response-handler
       (current-buffer)
       (lambda (buffer value)
-        (with-current-buffer buffer
-          (funcall callback 'finished
+        (funcall callback 'finished
+                 (with-current-buffer buffer
                    (flycheck-clojure-parse-cider-errors value checker))))
       nil                               ; stdout
       nil                               ; stderr
