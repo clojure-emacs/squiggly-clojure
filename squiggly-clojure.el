@@ -159,9 +159,10 @@ See URL `https://github.com/jonase/eastwood' and URL
 
 See URL `https://github.com/jonase/kibit' and URL
 `https://github.com/clojure-emacs/cider/' for more information."
-  :form (lambda (_)
+  :form (lambda (ns)
           (format
-           "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-kb %s))"
+           "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-kb '%s %s))"
+           ns
            ;; Escape file name for Clojure
            (flycheck-sexp-to-string (buffer-file-name))))
   :predicate (lambda () (buffer-file-name))
