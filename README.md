@@ -49,7 +49,7 @@ And add this to your `.emacs`:
 The clojure code used to invoke the various specific linters is in
 
 ~~~.clj
-[acyclic/squiggly-clojure "0.1.1-SNAPSHOT"]
+[acyclic/squiggly-clojure "0.1.2-SNAPSHOT"]
 ~~~
 
 You should probably add that to your `profiles.clj`.
@@ -62,7 +62,68 @@ It pulls in
   [jonase/kibit "0.0.8"]
 ~~~
 
-and there is currently no way to load linters selectively.
+### Configuration
+
+See the `sample-project` subdirectory for examples of the configuration methods
+described below.
+
+#### From Emacs
+
+Squiggly Clojure comprises three Flycheck checkers, `clojure-cider-typed`,
+`clojure-cider-kibit` and `clojure-cider-eastwood`.  You may exclude one or
+more of these by including them in the `flycheck-disabled-checkers` list.
+This can be done via the `Local Variables:` block at the end of a `.clj` file,
+e.g.
+
+~~~.clj
+;; Local Variables:
+;; flycheck-disabled-checkers: (clojure-cider-kibit)
+;; End:
+~~~
+
+but the following two methods are preferable for such persistent settings.
+
+#### In `project.clj`
+
+Add or merge
+
+~~~.clj
+  :plugins [[lein-environ "1.0.0"]]
+~~~
+
+and set an `:env` option map that includes `:squiggly` , e.g.
+
+~~~.clj
+{:env {:squiggly {:checkers [:eastwood]
+                  :eastwood-exclude-linters [:unlimited-use]}}}
+~~~
+
+Here, you specify *included* checkers, as `:eastwood`, `:kibit` or `:typed`.  If you
+set `:eastwood-exclude-linters`, it will be passed directly to Eastwood as described
+in its documentation.  This configuration will apply to all source files in the
+project unless overridden by...
+
+#### Namespace metadata
+
+E.g.
+
+~~~.clj
+(ns sample-project.core
+  {:squiggly {:checkers [:eastwood :typed]
+              :eastwood-exclude-linters [:unlimited-use]}}
+  (:require [clojure.core.typed])
+  (:use [clojure.stacktrace])     ;; warning suppressed by :eastwood-exclude-linters
+  )
+~~~
+
+
+#### Precedence 
+
+If set in the metadata, the value of `:squiggly` fully overrides anything set in the
+`project.clj`: no fancy merging is performed.
+
+And note that, if a checker is in `flycheck-disabled-checkers`, it will never be invoked
+no matter what you set in Clojure code.
 
 ### Debugging
 
@@ -79,12 +140,16 @@ receive the proper callbacks, it may be stuck in a state where it
 will never try to check again.  To reset (modulo some memory leaks perhaps)
 try turning ```flycheck-mode``` off and then on.
 
-If something mysterious is happening, you can set ```squiggly-clojure-chat-level``` to a number
-higher than 1 and examine the contents of ```**Messages**```.  (You can also set it to 0 and
-shut off verbal communication entirely.)
+If something mysterious is happening, you may find it helpful to look at the
+`*nrepl-messages*` buffer, where CIDER silently logs all traffic between EMACS
+and Clojure.  Among other things, you'll find here the Clojure expressions that
+were evaluated to initiate the checking, so you can run these directly from the REPL
+yourself.
+
+
+
 
 
 ### TODO:
 * Deal better with catastrophic failure of a checker.  Currently, we silently ignore exceptions.
-* Configuration options, in case you want to check different things.
 * Performance optimizations: throttling and narrowing.
