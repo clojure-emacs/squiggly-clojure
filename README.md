@@ -29,8 +29,8 @@ load path.)
 Add to your ```.emacs```:
 
 ~~~.el
-(require 'squiggly-clojure)
-(add-hook 'cider-mode-hook (lambda () (flycheck-mode 1)))
+(eval-after-load 'flycheck '(flycheck-clojure-setup))
+(global-flycheck-mode)
 ~~~
 
 Installing [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip) as well is strongly recommended, so that linting and type errors don't clash with cider's eldoc information.
@@ -41,8 +41,7 @@ And add this to your `.emacs`:
 
 ~~~.el
 (eval-after-load 'flycheck
-  '(custom-set-variables
-   '(flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
+  '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ~~~
 
 ### Dependencies in Clojure:
