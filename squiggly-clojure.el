@@ -102,7 +102,7 @@ Return a list of parsed `flycheck-error' objects."
 Checks for `cider-mode', and a current nREPL connection.
 
 Standard predicate for cider checkers."
-  (let ((connection-buffer (nrepl-current-connection-buffer)))
+  (let ((connection-buffer (nrepl-current-connection-buffer t)))
     (and (bound-and-true-p cider-mode)
          connection-buffer
          (buffer-live-p (get-buffer connection-buffer)))))
