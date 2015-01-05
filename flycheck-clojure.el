@@ -1,4 +1,4 @@
-;;; flychecks-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
+;;; flycheck-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
 
 ;; Copyright © 2014 Peter Fraenkel
 ;; Copyright (C) 2014 Sebastian Wiesner <swiesner@lunaryorn.com>
