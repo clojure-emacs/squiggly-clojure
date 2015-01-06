@@ -11,8 +11,9 @@
       (:squiggly environ.core/env)))
 
 (defn do-lint? [checker ns]
-  (if-let [checkers (:checkers (env ns))]
-    (some #{checker} checkers) true))
+  (and (find-ns ns)
+       (if-let [checkers (:checkers (env ns))]
+         (some #{checker} checkers) true)))
 
 (defn eastwood-exclude-linters [ns]
   (if-let [excl (:eastwood-exclude-linters (env ns))]
