@@ -70,11 +70,16 @@ Return a list of parsed `flycheck-error' objects."
                                          :filename filename))))
             error-objects)))
 
+(defun cider-flycheck-eval (input callback)
+  "Send the request INPUT and register the CALLBACK as the response handler.
+Uses the tooling session, with no specified namespace."
+  (nrepl-request:eval input callback nil (nrepl-current-tooling-session)))
+
 (defun flycheck-clojure-start-cider (checker callback)
   "Start a cider syntax CHECKER with CALLBACK."
   (let ((ns (clojure-find-ns))
         (form (get checker 'flycheck-clojure-form)))
-    (cider-tooling-eval
+    (cider-flycheck-eval
      (funcall form ns)
      (nrepl-make-response-handler
       (current-buffer)
@@ -94,8 +99,7 @@ Return a list of parsed `flycheck-error' objects."
       (lambda (_buffer ex _rootex _sess)
         (funcall callback 'errored
                  (format "Form %s of checker %s failed: %s"
-                         form checker ex))))
-     "user")))
+                         form checker ex)))))))
 
 (defun flycheck-clojure-may-use-cider-checker ()
   "Determine whether a cider checker may be used.
