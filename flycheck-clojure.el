@@ -1,4 +1,4 @@
-;;; squiggly-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
+;;; flycheck-clojure.el --- Flycheck: Clojure support    -*- lexical-binding: t; -*-
 
 ;; Copyright © 2014 Peter Fraenkel
 ;; Copyright (C) 2014 Sebastian Wiesner <swiesner@lunaryorn.com>
@@ -188,10 +188,10 @@ information."
                      clojure-cider-eastwood))
     (add-to-list 'flycheck-checkers checker)))
 
-(provide 'squiggly-clojure)
+(provide 'flycheck-clojure)
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
 
-;;; squiggly-clojure.el ends here
+;;; flycheck-clojure.el ends here
