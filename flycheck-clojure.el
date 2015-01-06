@@ -94,7 +94,8 @@ Return a list of parsed `flycheck-error' objects."
       (lambda (_buffer ex _rootex _sess)
         (funcall callback 'errored
                  (format "Form %s of checker %s failed: %s"
-                         form checker ex)))))))
+                         form checker ex))))
+     "user")))
 
 (defun flycheck-clojure-may-use-cider-checker ()
   "Determine whether a cider checker may be used.
