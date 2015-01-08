@@ -30,13 +30,27 @@
                                 :level :warning) ls)]
             (clojure.data.json/write-str ws))))
 
+
 (defn check-tc [ns]
   (if-not (do-lint? :typed ns) "[]"
-          (clojure.data.json/write-str
-           (map (fn [e] (assoc (:env (ex-data e))
+          (let [cni  (clojure.core.typed/check-ns-info ns) ;;  :file-mapping true
+                errs (map (fn [e] (assoc (:env (ex-data e))
                               :level :error
                               :msg (.getMessage e)))
-                (:delayed-errors (clojure.core.typed/check-ns-info ns))))))
+                          (:delayed-errors cni))
+                ;;tmap (:file-mapping cni)
+                ]
+;;            (reset! type-map tmap)
+            (clojure.data.json/write-str errs))))
+
+(def ns->type-map (atom {}))
+(defn build-type-map [ns]
+  (if-not (do-lint? :typed ns) "[]"
+          (let [cni  (clojure.core.typed/check-ns-info ns :file-mapping true) ;; 
+                types (:file-mapping cni)
+                tmap  (into {} (for [[{:keys [line column]} tp] types] [[line column] tp]))]
+            (swap! ns->type-map assoc ns tmap)
+            (count tmap))))
 
 
 (defn check-kb [ns fname]
