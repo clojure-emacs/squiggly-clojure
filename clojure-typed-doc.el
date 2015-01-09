@@ -58,15 +58,17 @@ Uses the tooling session, with no specified namespace."
 (defun inferred-type-at-point (&optional ns)
   "Report inferred type for symbol at point in namespace NS, which is inferred if missing."
   (interactive)
-  (let ((c (+ 1 (current-column)))
+  (let* ((c (+ 1 (current-column)))
 	(l (line-number-at-pos))
-	(ns (or ns (clojure-find-ns))))
+	(ns (or ns (clojure-find-ns)))
+	(cmd (format "(get-in @squiggly-clojure.core/ns->type-map ['%s [%d %d]])"
+		     ns l c)))
+    ;;(message cmd)
     (cider-clojure-typed-eval
-     (format "(get-in @squiggly-clojure.core/ns->type-map ['%s [%d %d]])"
-	     ns l c)
+     cmd
      (nrepl-make-response-handler
       (current-buffer)
-      (lambda (buffer value) (message (format "Type: %s" value)))
+      (lambda (buffer value) (message (format "Type %s" value)))
       nil ; stdout
       nil ; stderr
       nil ; completion without value
