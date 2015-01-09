@@ -110,7 +110,8 @@ Standard predicate for cider checkers."
   (let ((connection-buffer (nrepl-current-connection-buffer t)))
     (and (bound-and-true-p cider-mode)
          connection-buffer
-         (buffer-live-p (get-buffer connection-buffer)))))
+         (buffer-live-p (get-buffer connection-buffer))
+         (clojure-find-ns))))
 
 (defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
   "Define a Cider syntax checker with NAME, DOCSTRING and PROPERTIES.
