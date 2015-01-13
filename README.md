@@ -40,6 +40,12 @@ Installing [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip) as w
 And add this to your `.emacs`:
 
 ~~~.el
+(require-package 'flycheck)
+(require-package 'flycheck-clojure)
+(require-package 'flycheck-pos-typ)
+(require 'flycheck)
+(eval-after-load 'flycheck '(flycheck-clojure-setup))
+(add-hook 'after-init-hook #'global-flycheck-mode)
 (eval-after-load 'flycheck
   '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ~~~
