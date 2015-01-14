@@ -75,32 +75,6 @@ Return a list of parsed `flycheck-error' objects."
 Uses the tooling session, with no specified namespace."
   (nrepl-request:eval input callback nil (nrepl-current-tooling-session)))
 
-(defun flycheck-clojure-start-cider (checker callback)
-  "Start a cider syntax CHECKER with CALLBACK."
-  (let ((ns (clojure-find-ns))
-        (form (get checker 'flycheck-clojure-form)))
-    (cider-flycheck-eval
-     (funcall form ns)
-     (nrepl-make-response-handler
-      (current-buffer)
-      (lambda (buffer value)
-        (funcall callback 'finished
-                 (with-current-buffer buffer
-                   (flycheck-clojure-parse-cider-errors value checker))))
-      nil                               ; stdout
-      nil                               ; stderr
-      (lambda (_)
-        ;; If the evaluation completes without returning any value, there has
-        ;; gone something wrong.  Ideally, we'd report *what* was wrong, but
-        ;; `nrepl-make-response-handler' is close to useless for this :(,
-        ;; because it just `message's for many status codes that are errors for
-        ;; us :(
-        (funcall callback 'errored "Done with no errors"))
-      (lambda (_buffer ex _rootex _sess)
-        (funcall callback 'errored
-                 (format "Form %s of checker %s failed: %s"
-                         form checker ex)))))))
-
 (defun flycheck-clojure-may-use-cider-checker ()
   "Determine whether a cider checker may be used.
 
@@ -112,6 +86,34 @@ Standard predicate for cider checkers."
          connection-buffer
          (buffer-live-p (get-buffer connection-buffer))
          (clojure-find-ns))))
+
+(defun flycheck-clojure-start-cider (checker callback)
+  "Start a cider syntax CHECKER with CALLBACK."
+  (if (flycheck-clojure-may-use-cider-checker)
+      (let ((ns (clojure-find-ns))
+            (form (get checker 'flycheck-clojure-form)))
+        (cider-flycheck-eval
+         (funcall form ns)
+         (nrepl-make-response-handler
+          (current-buffer)
+          (lambda (buffer value)
+            (funcall callback 'finished
+                     (with-current-buffer buffer
+                       (flycheck-clojure-parse-cider-errors value checker))))
+          nil                               ; stdout
+          nil                               ; stderr
+          (lambda (_)
+            ;; If the evaluation completes without returning any value, there has
+            ;; gone something wrong.  Ideally, we'd report *what* was wrong, but
+            ;; `nrepl-make-response-handler' is close to useless for this :(,
+            ;; because it just `message's for many status codes that are errors for
+            ;; us :(
+            (funcall callback 'errored "Done with no errors"))
+          (lambda (_buffer ex _rootex _sess)
+            (funcall callback 'errored
+                     (format "Form %s of checker %s failed: %s"
+                             form checker ex))))))
+    (funcall callback 'finished '())))
 
 (defun flycheck-clojure-define-cider-checker (name docstring &rest properties)
   "Define a Cider syntax checker with NAME, DOCSTRING and PROPERTIES.
@@ -141,11 +143,11 @@ Clojure form to be sent to Cider to check the current buffer."
            name docstring
            :start #'flycheck-clojure-start-cider
            :modes '(clojure-mode)
-           :predicate (if orig-predicate
-                          (lambda ()
-                            (and (flycheck-clojure-may-use-cider-checker)
-                                 (funcall orig-predicate)))
-                        #'flycheck-clojure-may-use-cider-checker)
+           ;; :predicate (if orig-predicate
+           ;;                (lambda ()
+           ;;                  (and (flycheck-clojure-may-use-cider-checker)
+           ;;                       (funcall orig-predicate)))
+           ;;              #'flycheck-clojure-may-use-cider-checker)
            properties)
 
     (put name 'flycheck-clojure-form form)))
