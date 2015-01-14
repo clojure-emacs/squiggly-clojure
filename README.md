@@ -19,18 +19,15 @@ Please read the documentation for each linter.  Some of them come with warnings.
 
 ### Installation
 
-The package ~~is available~~ will soon be on [melpa](http://melpa.org/):
+The package is available on [Melpa](http://melpa.org/):
 
     M-x package-install squiggly-clojure
-
-(In the mean time, just put the the ```squiggly-clojure.el``` somwewhere on your
-load path.)
 
 Add to your ```.emacs```:
 
 ~~~.el
 (eval-after-load 'flycheck '(flycheck-clojure-setup))
-(global-flycheck-mode)
+(add-hook 'after-init-hook #'global-flycheck-mode)
 ~~~
 
 Installing [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip) as well is strongly recommended, so that linting and type errors don't clash with cider's eldoc information.
@@ -40,19 +37,13 @@ Installing [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip) as w
 And add this to your `.emacs`:
 
 ~~~.el
-(require-package 'flycheck)
-(require-package 'flycheck-clojure)
-(require-package 'flycheck-pos-typ)
-(require 'flycheck)
-(eval-after-load 'flycheck '(flycheck-clojure-setup))
-(add-hook 'after-init-hook #'global-flycheck-mode)
 (eval-after-load 'flycheck
   '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ~~~
 
 ### Dependencies in Clojure:
 
-The clojure code used to invoke the various specific linters is in
+The Clojure code used to invoke the various specific linters is in
 
 ~~~.clj
 [acyclic/squiggly-clojure "0.1.2-SNAPSHOT"]
@@ -139,7 +130,7 @@ Many things can go wrong.
   the REPL, so we may trigger bugs that don't matter to other people.
 * There may be circumstances under which the checkers return output
   in an unanticipated form, which will then be unparseable in emacs.
-* I don't really know emacs lisp.  Could be an issue.
+* I don't really know Emacs Lisp.  Could be an issue.
 
 If, due to one of these or other problems, ```flycheck``` does not
 receive the proper callbacks, it may be stuck in a state where it
@@ -151,10 +142,6 @@ If something mysterious is happening, you may find it helpful to look at the
 and Clojure.  Among other things, you'll find here the Clojure expressions that
 were evaluated to initiate the checking, so you can run these directly from the REPL
 yourself.
-
-
-
-
 
 ### TODO:
 * Deal better with catastrophic failure of a checker.  Currently, we silently ignore exceptions.
