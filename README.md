@@ -19,7 +19,7 @@ Please read the documentation for each linter.  Some of them come with warnings.
 
 ### Installation
 
-The package ~~is available~~ will soon be on [melpa](http://melpa.org/):
+The package is available on [melpa](http://melpa.org/):
 
     M-x package-install squiggly-clojure
 
