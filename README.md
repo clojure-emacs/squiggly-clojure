@@ -21,7 +21,7 @@ Please read the documentation for each linter.  Some of them come with warnings.
 
 The package is available on [Melpa](http://melpa.org/):
 
-    M-x package-install squiggly-clojure
+    M-x package-install flycheck-clojure
 
 Add to your ```.emacs```:
 
@@ -49,7 +49,7 @@ The Clojure code used to invoke the various specific linters is in
 [acyclic/squiggly-clojure "0.1.2-SNAPSHOT"]
 ~~~
 
-You should probably add that to your `profiles.clj`.
+You should probably add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) as part of the `:dependencies` vector.
 
 It pulls in
 
@@ -114,7 +114,7 @@ E.g.
 ~~~
 
 
-#### Precedence 
+#### Precedence
 
 If set in the metadata, the value of `:squiggly` fully overrides anything set in the
 `project.clj`: no fancy merging is performed.
