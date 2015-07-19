@@ -20,9 +20,11 @@
   (+ 3))
 
 
+;; (defn some-function [x]
+;;   #break  (reduce + (range x)))
 
-;; Substitute in Local Variables region to disable one or more checkers.
-;; flycheck-disabled-checkers: (clojure-cider-typed clojure-cider-kibit clojure-cider-eastwood)
-;; Local Variables:
-;; flycheck-disabled-checkers: ()
-;; End:
+    ;; Substitute in Local Variables region to disable one or more checkers.
+  ;; flycheck-disabled-checkers: (clojure-cider-typed clojure-cider-kibit clojure-cider-eastwood)
+  ;; Local Variables:
+  ;; flycheck-disabled-checkers: ()
+  ;; End:

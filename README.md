@@ -54,9 +54,20 @@ You should probably add that to your [`profiles.clj`](https://github.com/technom
 It pulls in
 
 ~~~.clj
-  [org.clojure/core.typed "0.2.72"]
+  [org.clojure/core.typed "0.3.7"]
   [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]
-  [jonase/kibit "0.0.8"]
+  [jonase/kibit "0.1.2"]
+  ~~~
+
+Note also that `squiggly-clojure` is being developed using Cider 2.10, with the following dependencies in `profiles.clj`:
+
+~~~.clj
+{:user {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
+                  ;...
+                  ]
+        :dependencies [[acyclic/squiggly-clojure "0.1.3-SNAPSHOT"]
+                       ^:replace [org.clojure/tools.nrepl "0.2.10"]]
+}
 ~~~
 
 ### Configuration
