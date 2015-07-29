@@ -20,11 +20,17 @@
   (+ 3))
 
 
-;; (defn some-function [x]
-;;   #break  (reduce + (range x)))
 
-    ;; Substitute in Local Variables region to disable one or more checkers.
-  ;; flycheck-disabled-checkers: (clojure-cider-typed clojure-cider-kibit clojure-cider-eastwood)
-  ;; Local Variables:
-  ;; flycheck-disabled-checkers: ()
-  ;; End:
+(defn some-function [x]
+  (reduce + (range x))
+  ;; The undefined variable here will cause an exception in type-checker. The exception
+  ;; will be shown as an error at the first line of this file, but of course no other
+  ;; type linting will be reported.
+  ;; (+ bah)
+  )
+
+;; Substitute in Local Variables region to disable one or more checkers.
+;; flycheck-disabled-checkers: (clojure-cider-typed clojure-cider-kibit clojure-cider-eastwood)
+;; Local Variables:
+;; flycheck-disabled-checkers: ()
+;; End:
