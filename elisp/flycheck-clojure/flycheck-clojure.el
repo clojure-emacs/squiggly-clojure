@@ -178,8 +178,8 @@ See URL `https://github.com/jonase/kibit' and URL
 (flycheck-clojure-define-cider-checker 'clojure-cider-typed
   "A syntax checker for Clojure, using Typed Clojure in Cider.
 
-See URL `https://github.com/clojure-emacs/cider/' for more
-information."
+See URL `https://github.com/clojure-emacs/cider/' and URL
+`https://github.com/clojure/core.typed' for more information."
   :form (lambda (ns)
           (format
            "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc '%s))"
