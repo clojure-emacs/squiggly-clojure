@@ -17,6 +17,9 @@ See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
 
 Please read the documentation for each linter.  Some of them come with warnings.
 
+If you don't notice any flycheck annotations, check the first line of the file, to which all
+catastrophic linting failures (including thrown exceptions) will be attached as errors.
+
 ### Installation
 
 The package is available on [Melpa](http://melpa.org/):
@@ -123,7 +126,6 @@ E.g.
   (:use [clojure.stacktrace])     ;; warning suppressed by :eastwood-exclude-linters
   )
 ~~~
-
 
 #### Precedence
 

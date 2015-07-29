@@ -22,6 +22,7 @@
 
 
 (defn some-function [x]
+  ;; #break
   (reduce + (range x))
   ;; The undefined variable here will cause an exception in type-checker. The exception
   ;; will be shown as an error at the first line of this file, but of course no other
