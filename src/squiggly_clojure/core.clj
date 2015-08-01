@@ -21,14 +21,19 @@
 
 (defn permissive-reader [tag value] value)
 
-(defmacro exception->error [form]
+(defmacro exception->error [linter form]
   `(try ~form
         (catch Exception e#
-          (clojure.data.json/write-str (list {:line 1, :column 1 :msg (str e#) :level :error})))))
+          (clojure.data.json/write-str
+           (list (merge
+                  {:line 1, :column 1
+                   :msg (str ~linter ":" (.getMessage e#))
+                   :level :error} (ex-data e#)))))))
 
 (defn check-ew [ns & [opts]]
   (if-not (do-lint? :eastwood ns) "[]"
-          (exception->error (binding [*default-data-reader-fn* permissive-reader]
+          (exception->error "Eastwood"
+           (binding [*default-data-reader-fn* permissive-reader]
                               (let [ls (:warnings (eastwood.lint/lint {:source-paths ["src"]
                                                                        :namespaces [ns]
                                                                        :continue-on-exception true
@@ -49,7 +54,7 @@
 
 (defn check-tc [ns]
   (if-not (do-lint? :typed ns) "[]"
-          (exception->error 
+          (exception->error "core.typed"
            (binding [*default-data-reader-fn* permissive-reader]
              (let [cni  (clojure.core.typed/check-ns-info ns :file-mapping (:typed-file-mapping (env ns)))
                    errs (map (fn [e] (assoc (:env (ex-data e))
@@ -68,7 +73,7 @@
 
 (defn check-kb [ns fname]
   (if-not (do-lint? :kibit ns) "[]"
-          (exception->error
+          (exception->error "Kibit"
            (binding [*default-data-reader-fn* permissive-reader]
              (let  [_squiggly (atom [])]
                (kibit.check/check-file
