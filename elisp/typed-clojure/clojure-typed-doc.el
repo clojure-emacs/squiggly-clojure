@@ -35,7 +35,7 @@
 (defun cider-clojure-typed-eval (input callback)
   "Send the request INPUT and register the CALLBACK as the response handler.
 Uses the tooling session, with no specified namespace."
-  (nrepl-request:eval input callback nil (nrepl-current-tooling-session)))
+  (nrepl-request:eval input callback nil (cider-current-tooling-session)))
 
 
 (defun infer-clojure-types (&optional ns)
