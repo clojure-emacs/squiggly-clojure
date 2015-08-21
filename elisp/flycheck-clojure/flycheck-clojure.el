@@ -73,7 +73,7 @@ Return a list of parsed `flycheck-error' objects."
 (defun cider-flycheck-eval (input callback)
   "Send the request INPUT and register the CALLBACK as the response handler.
 Uses the tooling session, with no specified namespace."
-  (nrepl-request:eval input callback nil (nrepl-current-tooling-session)))
+  (nrepl-request:eval input callback nil (cider-current-tooling-session)))
 
 (defun flycheck-clojure-may-use-cider-checker ()
   "Determine whether a cider checker may be used.
