@@ -49,7 +49,7 @@ And add this to your `.emacs`:
 The Clojure code used to invoke the various specific linters is in
 
 ~~~.clj
-[acyclic/squiggly-clojure "0.1.3-SNAPSHOT"]
+[acyclic/squiggly-clojure "0.1.4"]
 ~~~
 
 You should probably add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) as part of the `:dependencies` vector.
