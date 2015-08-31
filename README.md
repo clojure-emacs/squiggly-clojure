@@ -13,18 +13,24 @@ via
 
 See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
 
-### Warning!
+### Warnings!
 
 Please read the documentation for each linter.  Some of them come with warnings.
 
 If you don't notice any flycheck annotations, check the first line of the file, to which all
 catastrophic linting failures (including thrown exceptions) will be attached as errors.
 
+
 ### Installation
 
 The package is available on [Melpa](http://melpa.org/):
 
     M-x package-install flycheck-clojure
+
+Alternatively, (1) clone this project and put its `elisp/flycheck-clojure/` directory
+on your path, or (2) download
+[this one file](https://github.com/clojure-emacs/clojure-mode/blob/master/clojure-mode.el),
+and install it wherever you like.
 
 Add to your ```.emacs```:
 
