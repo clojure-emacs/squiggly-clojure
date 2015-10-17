@@ -1,13 +1,17 @@
 (ns sample-project.core
   {:squiggly {:checkers [:kibit :eastwood :typed]
-              :eastwood-exclude-linters [:unlimited-use]}}
-  (:require [clojure.core.typed])
+              :eastwood-exclude-linters [:unlimited-use]
+              :typed-file-mapping :true}}
+  (:require [clojure.core.typed :as t])
   (:use [clojure.stacktrace])  ;; warning suppressed by :eastwood-exclude-linters
   )
+
+(t/defn typo [i :- t/Int] :- t/Int, (+ i 2))
 
 (defn foo
   "I don't do a whole lot."
   [x]
+  (typo [1])
   (println x "Hello, World!"))
 
 
@@ -18,7 +22,6 @@
   (map inc [1 2 3])
 
   (+ 3))
-
 
 
 (defn some-function [x]

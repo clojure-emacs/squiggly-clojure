@@ -35,7 +35,7 @@
 (defun cider-clojure-typed-eval (input callback)
   "Send the request INPUT and register the CALLBACK as the response handler.
 Uses the tooling session, with no specified namespace."
-  (nrepl-request:eval input callback nil (cider-current-tooling-session)))
+  (cider-nrepl-request:eval input callback))
 
 
 (defun infer-clojure-types (&optional ns)
@@ -63,7 +63,7 @@ Uses the tooling session, with no specified namespace."
 	(ns (or ns (clojure-find-ns)))
 	(cmd (format "(get-in @squiggly-clojure.core/ns->type-map ['%s [%d %d]])"
 		     ns l c)))
-    ;;(message cmd)
+    (message cmd)
     (cider-clojure-typed-eval
      cmd
      (nrepl-make-response-handler
