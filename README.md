@@ -50,6 +50,15 @@ And add this to your `.emacs`:
   '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ~~~
 
+If you're used to `flycheck` but not used to `cider`, you may want
+
+~~~.el
+(add-hook 'cider-mode-hook 
+  (lambda () (setq next-error-function #'flycheck-next-error-function)))
+~~~
+
+to override the binding to ````cider-jump-to-compilation-error`.
+
 ### Dependencies in Clojure:
 
 The Clojure code used to invoke the various specific linters is in
