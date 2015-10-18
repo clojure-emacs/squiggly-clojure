@@ -67,17 +67,9 @@ The Clojure code used to invoke the various specific linters is in
 [acyclic/squiggly-clojure "0.1.4"]
 ~~~
 
-You should probably add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) as part of the `:dependencies` vector.
-
-It pulls in
-
-~~~.clj
-  [org.clojure/core.typed "0.3.7"]
-  [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]
-  [jonase/kibit "0.1.2"]
-  ~~~
-
-Note also that `squiggly-clojure` is being developed using Cider 2.10, with the following dependencies in `profiles.clj`:
+You can add that add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) or to the project-specific
+`project.clj`, as part of the `:dependencies` vector.  Since `squiggly-clojure` is being developed using Cider 2.10, `profiles.clj` will have something
+like this in it:
 
 ~~~.clj
 {:user {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
@@ -87,6 +79,18 @@ Note also that `squiggly-clojure` is being developed using Cider 2.10, with the 
                        ^:replace [org.clojure/tools.nrepl "0.2.10"]]
 }
 ~~~
+
+`squiggly-clojure` in turn depends on
+
+~~~.clj
+  [org.clojure/core.typed "0.3.7"]
+  [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]
+  [jonase/kibit "0.1.2"]
+~~~
+
+and  `core.typed` requires **clojure 1.7.0**, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
+the availability of all three linters, even if you aren't using all of them.
+
 
 ### Configuration
 
