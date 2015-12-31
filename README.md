@@ -50,6 +50,18 @@ And add this to your `.emacs`:
   '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
 ~~~
 
+Alternatively to [flycheck-pos-tip](https://github.com/flycheck/flycheck-pos-tip)
+you can use [flycheck-tip](https://github.com/yuutayamada/flycheck-tip)
+
+    M-x package-install flycheck-tip
+
+In that case add to your ```.emacs```:
+
+~~~.el
+(require 'flycheck-tip)
+(flycheck-tip-use-timer 'verbose)
+~~~
+
 If you're used to `flycheck` but not used to `cider`, you may want
 
 ~~~.el
