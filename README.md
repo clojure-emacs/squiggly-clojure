@@ -75,8 +75,8 @@ like this in it:
 {:user {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
                   ;...
                   ]
-        :dependencies [[acyclic/squiggly-clojure "0.1.3-SNAPSHOT"]
-                       ^:replace [org.clojure/tools.nrepl "0.2.10"]]
+        :dependencies [[acyclic/squiggly-clojure "0.1.4"]
+                       ^:replace [org.clojure/tools.nrepl "0.2.12"]]
 }
 ~~~
 

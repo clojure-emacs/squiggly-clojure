@@ -20,7 +20,6 @@
   (+ 3))
 
 
-
 (defn some-function [x]
   ;; #break
   (reduce + (range x))
