@@ -84,13 +84,15 @@ You can add that add that to your [`profiles.clj`](https://github.com/technomanc
 like this in it:
 
 ~~~.clj
-{:user {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
+{:repl {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
                   ;...
                   ]
         :dependencies [[acyclic/squiggly-clojure "0.1.4"]
                        ^:replace [org.clojure/tools.nrepl "0.2.12"]]
 }
 ~~~
+
+(If you haven't set up a separate `:repl` profile, then it will be `:user` of course.)
 
 `squiggly-clojure` in turn depends on
 
