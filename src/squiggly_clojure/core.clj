@@ -19,6 +19,13 @@
   (if-let [excl (:eastwood-exclude-linters (env ns))]
     excl []))
 
+(defn eastwood-options [ns]
+  (merge {:source-paths ["src"]
+          :namespaces [ns]
+          :continue-on-exception true
+          :exclude-linters (eastwood-exclude-linters ns)}
+         (:eastwood-options (env ns))))
+
 (defn permissive-reader [tag value] value)
 
 (defmacro exception->error [linter form]
@@ -34,11 +41,7 @@
   (if-not (do-lint? :eastwood ns) "[]"
           (exception->error "Eastwood"
            (binding [*default-data-reader-fn* permissive-reader]
-                              (let [ls (:warnings (eastwood.lint/lint {:source-paths ["src"]
-                                                                       :namespaces [ns]
-                                                                       :continue-on-exception true
-                                                                       :exclude-linters (eastwood-exclude-linters ns)
-                                                                       }))
+                              (let [ls (:warnings (eastwood.lint/lint (eastwood-options ns)))
                                     ws (map #(assoc (select-keys % [:line :column :msg])
                                                     :file (str (:uri %))
                                                     :level :warning) ls)]

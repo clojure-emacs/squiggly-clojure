@@ -1,6 +1,7 @@
 (ns sample-project.core
   {:squiggly {:checkers [:kibit :eastwood :typed]
-              :eastwood-exclude-linters [:unlimited-use]}}
+              :eastwood-exclude-linters [:unlimited-use]
+              :eastwood-options {:not-a-real-option "foo"}}}
   (:require [clojure.core.typed])
   (:use [clojure.stacktrace])  ;; warning suppressed by :eastwood-exclude-linters
   )

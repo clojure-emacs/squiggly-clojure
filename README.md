@@ -15,10 +15,17 @@ See this [blog post](http://blog.podsnap.com/squiggly.html) for more.
 
 ### Warnings!
 
-Please read the documentation for each linter.  Some of them come with warnings.
+Read these warnings:
 
-If you don't notice any flycheck annotations, check the first line of the file, to which all
-catastrophic linting failures (including thrown exceptions) will be attached as errors.
+  * It is assumed that you are familiar with each of these linters, so
+    please read the their documentation.  There, you will find additional
+    warnings.
+  * Do not use `squiggly-clojure` unless your code can be
+    reloaded without side effects, as the linters will
+    be reloading it repeatedly.
+  * Eastwood and Kibit are typically run via lein plugins, and use within the
+    REPL vm, as squiggly requires, is not officially supported.  (Though in
+    practice it works well.)
 
 
 ### Installation
@@ -62,6 +69,8 @@ In that case add to your ```.emacs```:
 (flycheck-tip-use-timer 'verbose)
 ~~~
 
+Either way, you should now get the snazzy yellow post-it messages when the cursor is on a squiggly underline.
+
 If you're used to `flycheck` but not used to `cider`, you may want
 
 ~~~.el
@@ -71,12 +80,13 @@ If you're used to `flycheck` but not used to `cider`, you may want
 
 to override the binding to ````cider-jump-to-compilation-error`.
 
+
 ### Dependencies in Clojure:
 
 The Clojure code used to invoke the various specific linters is in
 
 ~~~.clj
-[acyclic/squiggly-clojure "0.1.4"]
+[acyclic/squiggly-clojure "0.1.5"]
 ~~~
 
 You can add that add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) or to the project-specific
@@ -162,32 +172,80 @@ E.g.
 
 #### Precedence
 
-If set in the metadata, the value of `:squiggly` fully overrides anything set in the
+If set in the namespace metadata, the value of `:squiggly` fully overrides
+anything set in the
 `project.clj`: no fancy merging is performed.
 
-And note that, if a checker is in `flycheck-disabled-checkers`, it will never be invoked
-no matter what you set in Clojure code.
+And note that, if a checker is in `flycheck-disabled-checkers`, it will never
+be invoked no matter what you set in Clojure code.
 
-### Debugging
+#### Available options
 
-Many things can go wrong.
+~~~.clj
+  :checkers                    [:eastwood :typed :kibit]
+  :eastwood-exclude-linters    [] # see Eastwood documentation
+  :eastwood-options            {} # See Eastwood documentation
+~~~
 
-* Neither ```eastwood``` nor ```kibit``` is usually run repeatedly and in
-  the REPL, so we may trigger bugs that don't matter to other people.
-* There may be circumstances under which the checkers return output
-  in an unanticipated form, which will then be unparseable in emacs.
-* I don't really know Emacs Lisp.  Could be an issue.
+Note that `:eastwood-exclude-linters` is here for backwards compatibility, and
+specifying `:eastwood-options {:exclude-linter [...]}` would override it.  If
+you have really a lot of Eastwood options you want to specify, you can specify
+`:builtin-config-files` in the `:eastwood-options` map and really go to town.
+
+
+### Debugging and bug reporting
+
+First, see the warnings above.  The general theme is that we depend on
+three external linters, problems or incompatibilities with any of which might
+now manifest in emacs.
+
+If something mysterious is happening, you may find it helpful to look at the
+`*nrepl-messages...` buffers, where CIDER silently logs all traffic between EMACS
+and Clojure.  Among other things, you'll find here the Clojure expressions that
+were evaluated to initiate the checking, e.g.
+
+~~~
+  op  "eval"
+  session  "5f8764c8-3f2b-4871-9a26-766b4b5af314"
+  code  "(do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc 'sample-project.core))"
+  id  "20"
+~~~
+
+You can see output from this command by looking for messages with the same `id`, e.g.
+
+~~~
+  id  "20"
+  ns  "user"
+  session  "5f8764c8-3f2b-4871-9a26-766b4b5af314"
+  value  "\"[{\\\"line\\\":16,\\\"column\\\":3,\\\"file\\\":\\\"sample_project\\\\/core.clj\\\",\\\"level\\\":\\\"error\\\",\\\"msg\\\":\\\"Static method clojure.lang.Numbers\\\\/inc could not be applied to arguments:\\\\n\\\\n\\\\nDomains:\\\\n\\\\tNumber\\\\n\\\\nArguments:\\\\n\\\\t(clojure.core.typed\\\\/Val \\\\\\\"foo\\\\\\\")\\\\n\\\\nRanges:\\\\n\\\\tNumber\\\\n\\\\n\\\"},{\\\"line\\\":25,\\\"column\\\":13,\\\"file\\\":\\\"sample_project\\\\/core.clj\\\",\\\"level\\\":\\\"error\\\",\\\"msg\\\":\\\"Function range could not be applied to arguments:\\\\n\\\\n\\\\nDomains:\\\\n\\\\tNumber\\\\n\\\\nArguments:\\\\n\\\\tclojure.core.typed\\\\/Any\\\\n\\\\nRanges:\\\\n\\\\t(clojure.core.typed\\\\/ASeq clojure.core.typed\\\\/AnyInteger)\\\\n\\\\n\\\"}]\""
+~~~
+
+In this case, you can see that type-checking returned a map of results correctly.
+
+If results are correctly returned in the REPL but are not displayed in the Emacs buffer, then there may be an
+elisp bug to report.
+
+If you see something that looks like an error, you should reproduce it
+by running the Clojure expression directly from the REPL, e.g. in this case
+
+~~~.clj
+  (do (require 'squiggly-clojure.core) (squiggly-clojure.core/check-tc 'sample-project.core))
+~~~
+
+If this returns an error, you should then try replicating **outside the REPL** using the linter's lein plugin.
+In the example above, that would be [lein-typed](https://github.com/typedclojure/lein-typed), which must be
+installed separately.
+
+If all linters work propertly outside of the REPL, there may be a reportable bug in the squiggly clojure
+code, though historically it's usually turned out to be related to dependency conflicts between the linters
+and the project being linted.  Accordingly, when reporting a possible bug, please include the output of `lein deps :tree`
+or `lein with-profile something deps`, where `something` is probably `repl`, as appropriate.
 
 If, due to one of these or other problems, ```flycheck``` does not
 receive the proper callbacks, it may be stuck in a state where it
 will never try to check again.  To reset (modulo some memory leaks perhaps)
 try turning ```flycheck-mode``` off and then on.
 
-If something mysterious is happening, you may find it helpful to look at the
-`*nrepl-messages*` buffer, where CIDER silently logs all traffic between EMACS
-and Clojure.  Among other things, you'll find here the Clojure expressions that
-were evaluated to initiate the checking, so you can run these directly from the REPL
-yourself.
 
 ### TODO:
 * Deal better with catastrophic failure of a checker.  Currently, we silently ignore exceptions.

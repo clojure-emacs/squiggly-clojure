@@ -10,8 +10,8 @@
   :plugins [[lein-environ "1.0.0"]]
 
   ;; Configuration here may be overridden by namespace metadata.
-  :profiles {:dev {:env {:squiggly {:checkers [:eastwood]
-                                    :eastwood-exclude-linters [:unlimited-use]}}}}
+  :profiles {:dev {:env {:squiggly {:checkers [:eastwood :typed]
+                                    :eastwood-exclude-linters [:unlimited-use]
+                                    :eastwood-options {;; :builtin-config-files ["myconfigfile.clj"]
+                                                       }}}}})
 
-
-  )
