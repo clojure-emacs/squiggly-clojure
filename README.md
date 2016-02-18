@@ -190,7 +190,7 @@ be invoked no matter what you set in Clojure code.
 Note that `:eastwood-exclude-linters` is here for backwards compatibility, and
 specifying `:eastwood-options {:exclude-linter [...]}` would override it.  If
 you have really a lot of Eastwood options you want to specify, you can specify
-`:builtin-config-files` in the `:eastwood-options` map and really go to town.
+`:config:files` in the `:eastwood-options` map and really go to town.
 
 
 ### Debugging and bug reporting
