@@ -115,6 +115,10 @@ like this in it:
 and  `core.typed` requires **clojure 1.7.0**, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
 the availability of all three linters, even if you aren't using all of them.
 
+If you're using a newer version of cider, the dependency will be automatically
+added to `cider-jack-in-dependencies` unless you specifically disable it by
+setting `flycheck-clojure-inject-dependencies-at-jack-in` to nil.
+
 
 ### Configuration
 
