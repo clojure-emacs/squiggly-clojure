@@ -89,20 +89,28 @@ The Clojure code used to invoke the various specific linters is in
 [acyclic/squiggly-clojure "0.1.5"]
 ~~~
 
-You can add that add that to your [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) or to the project-specific
-`project.clj`, as part of the `:dependencies` vector.  Since `squiggly-clojure` is being developed using Cider 2.10, `profiles.clj` will have something
-like this in it:
+
+
+If you're using a current release of Cider, then this dependency, along with all of Cider's will be injected automatically for you
+upon `cider-jack-in`.
+(Specifically, the dependencies will be added to  `cider-jack-in-dependencies` unless you specifically disable it by
+setting `flycheck-clojure-inject-dependencies-at-jack-in` to nil.)
+
+
+If you want to `cider-attach` to a running repl, then you'll need to specify the proper dependencies in your 
+[`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) or to the project-specific
+`project.clj`, as part of the `:dependencies` vector.  E.g. 
 
 ~~~.clj
-{:repl {:plugins [[cider/cider-nrepl "0.10.0-SNAPSHOT"]
+;; profiles.clj
+{:repl {:plugins [[cider/cider-nrepl "A.B.C"] ;; subsitute A.B.C from Cider docs
                   ;...
                   ]
-        :dependencies [[acyclic/squiggly-clojure "0.1.4"]
-                       ^:replace [org.clojure/tools.nrepl "0.2.12"]]
+        :dependencies [[acyclic/squiggly-clojure "x.y.z"]  ;; substitute x.y.z from above
+                       ^:replace [org.clojure/tools.nrepl "D.E.F"]];; Substitute D.E.F from Cider docs
 }
 ~~~
 
-(If you haven't set up a separate `:repl` profile, then it will be `:user` of course.)
 
 `squiggly-clojure` in turn depends on
 
@@ -112,12 +120,8 @@ like this in it:
   [jonase/kibit "0.1.2"]
 ~~~
 
-and  `core.typed` requires **clojure 1.7.0**, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
+and  `core.typed` requires **clojure 1.7.0** or above, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
 the availability of all three linters, even if you aren't using all of them.
-
-If you're using a newer version of cider, the dependency will be automatically
-added to `cider-jack-in-dependencies` unless you specifically disable it by
-setting `flycheck-clojure-inject-dependencies-at-jack-in` to nil.
 
 
 ### Configuration
