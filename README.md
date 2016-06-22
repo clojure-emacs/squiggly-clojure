@@ -85,7 +85,8 @@ to override the binding to ````cider-jump-to-compilation-error`.
 
 The Clojure code used to invoke the various specific linters is in
 
-![Clojars Project](https://img.shields.io/clojars/v/acyclic/squiggly-clojure.svg)
+[![Clojars Project](https://img.shields.io/clojars/v/acyclic/squiggly-clojure.svg)](https://clojars.org/acyclic/squiggly-clojure)
+
 
 
 If you're using a current release of Cider, then this dependency, along with all of Cider's will be injected automatically for you
