@@ -30,7 +30,7 @@
 
 (defmacro exception->error [linter form]
   `(try ~form
-        (catch Exception e#
+        (catch Throwable e#
           (clojure.data.json/write-str
            (list (merge
                   {:line 1, :column 1
