@@ -105,12 +105,12 @@ If you want to `cider-attach` to a running repl, then you'll need to specify the
                   ;...
                   ]
         :dependencies [[acyclic/squiggly-clojure "x.y.z"]  ;; substitute x.y.z from above
-                       ^:replace [org.clojure/tools.nrepl "D.E.F"]];; Substitute D.E.F from Cider docs
+		               ;...]}
 }
 ~~~
 
 
-`squiggly-clojure` in turn depends on
+`squiggly-clojure` in turn depends pulls in dependency on
 
 ~~~.clj
   [org.clojure/core.typed "0.3.7"]
@@ -119,7 +119,7 @@ If you want to `cider-attach` to a running repl, then you'll need to specify the
 ~~~
 
 and  `core.typed` requires **clojure 1.7.0** or above, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
-the availability of all three linters, even if you aren't using all of them.
+the availability of all three linters, even if you aren't using all of them.  (Note that you do not need to list them explicitly.)
 
 
 ### Configuration
