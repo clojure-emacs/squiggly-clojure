@@ -45,7 +45,6 @@
                                     ws (map #(assoc (select-keys % [:line :column :msg])
                                                     :file (str (:uri %))
                                                     :level :warning) ls)]
-                                (println ws)
                                 (clojure.data.json/write-str ws))))))
 
 (def ns->type-map (atom {}))
