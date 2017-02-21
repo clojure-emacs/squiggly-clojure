@@ -198,7 +198,8 @@ See URL `https://github.com/clojure-emacs/cider/' and URL
 If injecting the dependencies is not preferred set `flycheck-clojure-inject-dependencies-at-jack-in' to nil."
   (when (and flycheck-clojure-inject-dependencies-at-jack-in
              (boundp 'cider-jack-in-dependencies))
-    (add-to-list 'cider-jack-in-dependencies `("acyclic/squiggly-clojure" ,flycheck-clojure-dep-version))))
+    (cider-add-to-alist 'cider-jack-in-dependencies "acyclic/squiggly-clojure" flycheck-clojure-dep-version)
+    (cider-add-to-alist 'cider-jack-in-dependencies-exclusions "acyclic/squiggly-clojure" '("org.clojure/tools.reader"))))
 
 ;;;###autoload
 (defun flycheck-clojure-setup ()
