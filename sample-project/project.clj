@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.typed "0.3.25"]]
+                 [org.clojure/core.typed "0.3.32"  :classifier "slim"]]
 
   ;; Use lein-environ plugin if you want to set checker configuration in profile.
   :plugins [[lein-environ "1.0.0"]]
