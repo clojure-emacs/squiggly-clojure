@@ -117,7 +117,7 @@ profile; the latter is usually upper-case, e.g. `"0.15.0-SNAPSHOT"`.
 ~~~.clj
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [environ "1.0.0"]
-                 [org.clojure/core.typed "0.3.25" :exclusions [org.clojure/clojure]]
+                 [org.clojure/core.typed "0.3.32" :exclusions [org.clojure/clojure] :classifier "slim"]
                  [org.clojure/data.json "0.2.6"]
                  [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
                  [jonase/kibit "0.1.3"]]

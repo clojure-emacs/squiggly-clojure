@@ -1,4 +1,4 @@
-(defproject acyclic/squiggly-clojure "0.1.8"
+(defproject acyclic/squiggly-clojure "0.1.9-SNAPSHOT"
   :description "Flycheck for Clojure"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
