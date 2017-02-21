@@ -48,7 +48,7 @@
   :group 'flycheck-clojure
   :type 'boolean)
 
-(defvar flycheck-clojure-dep-version "0.1.6"
+(defvar flycheck-clojure-dep-version "0.1.8"
   "Version of `acyclic/squiggly-clojure' compatible with this version of flycheck-clojure.")
 
 ;;;###autoload
