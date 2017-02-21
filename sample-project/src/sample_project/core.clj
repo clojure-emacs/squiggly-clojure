@@ -1,9 +1,10 @@
 (ns sample-project.core
   {:squiggly {:checkers [:kibit :eastwood :typed]
               :eastwood-exclude-linters [:unlimited-use]
-              :eastwood-options {:not-a-real-option "foo"}}}
-  (:require [clojure.core.typed])
-  (:use [clojure.stacktrace])  ;; warning suppressed by :eastwood-exclude-linters
+              :eastwood-options {:not-a-real-option "foo"}}
+   :lang :core.typed}
+  (:require [clojure.core.typed :as t])
+;;  (:use [clojure.stacktrace])  ;; warning suppressed by :eastwood-exclude-linters
   )
 
 (defn foo

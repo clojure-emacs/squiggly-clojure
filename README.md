@@ -101,25 +101,30 @@ If you want to `cider-attach` to a running repl, then you'll need to specify the
 
 ~~~.clj
 ;; profiles.clj
-{:repl {:plugins [[cider/cider-nrepl "A.B.C"] ;; subsitute A.B.C from Cider docs
+{:repl {:plugins [[cider/cider-nrepl "A.B.C"] ;; subsitute A.B.C from emacs cider-version variable
                   ;...
                   ]
-        :dependencies [[acyclic/squiggly-clojure "x.y.z"]  ;; substitute x.y.z from above
-		               ;...]}
+        :dependencies [[acyclic/squiggly-clojure "x.y.z" :exclusions [org.clojure/tools.reader]]  ;; substitute x.y.z from above
+		               ;...
+					   ]}
 }
 ~~~
-
+Note that there may be case differences between emacs' `cider-version` and the proper `cider-nrepl` version for the
+profile; the latter is usually upper-case, e.g. `"0.15.0-SNAPSHOT"`.
 
 `squiggly-clojure` in turn depends pulls in dependency on
 
 ~~~.clj
-  [org.clojure/core.typed "0.3.7"]
-  [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]
-  [jonase/kibit "0.1.2"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [environ "1.0.0"]
+                 [org.clojure/core.typed "0.3.25" :exclusions [org.clojure/clojure]]
+                 [org.clojure/data.json "0.2.6"]
+                 [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
+                 [jonase/kibit "0.1.3"]]
 ~~~
 
-and  `core.typed` requires **clojure 1.7.0** or above, which is therefore a requirement of squiggly clojure; it is not currently possible to use squiggly clojure without
-the availability of all three linters, even if you aren't using all of them.  (Note that you do not need to list them explicitly.)
+Note that, if you want to use `core.typed`, you will have add a dependency and make some changes to your `ns`
+as described on the [github.page](https://github.com/clojure/core.typed).
 
 
 ### Configuration
@@ -170,8 +175,9 @@ E.g.
 ~~~.clj
 (ns sample-project.core
   {:squiggly {:checkers [:eastwood :typed]
-              :eastwood-exclude-linters [:unlimited-use]}}
-  (:require [clojure.core.typed])
+              :eastwood-exclude-linters [:unlimited-use]}
+   :lang :core.typed}
+  (:require [clojure.core.typed] :as t)
   (:use [clojure.stacktrace])     ;; warning suppressed by :eastwood-exclude-linters
   )
 ~~~
