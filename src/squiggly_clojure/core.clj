@@ -4,11 +4,17 @@
             clojure.data.json
             clojure.core.typed
             environ.core
-            ))
+            clojure.edn))
+
+(defn- convert-env-config [config]
+  (if (string? config)
+    (clojure.edn/read-string config)
+    config))
 
 (defn env [ns]
   (or (:squiggly (meta (the-ns ns)))
-      (:squiggly environ.core/env)))
+      (convert-env-config
+       (:squiggly environ.core/env))))
 
 (defn do-lint? [checker ns]
   (and (find-ns ns)
