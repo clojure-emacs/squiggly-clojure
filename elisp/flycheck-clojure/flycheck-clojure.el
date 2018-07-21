@@ -89,7 +89,7 @@ Uses the tooling session, with no specified namespace."
 Checks for `cider-mode', and a current nREPL connection.
 
 Standard predicate for cider checkers."
-  (let ((connection-buffer (cider-default-connection :no-error)))
+  (let ((connection-buffer (cider-current-repl)))
     (and (bound-and-true-p cider-mode)
          connection-buffer
          (buffer-live-p (get-buffer connection-buffer))
