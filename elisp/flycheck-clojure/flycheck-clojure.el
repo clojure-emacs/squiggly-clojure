@@ -70,7 +70,8 @@ Return a list of parsed `flycheck-error' objects."
                                       (url-filename
                                        (url-generic-parse-url .file))))
                        (filename (if (and parsed-file
-                                          (file-name-absolute-p parsed-file))
+                                          (file-name-absolute-p parsed-file)
+                                          (not (string-prefix-p (expand-file-name "~/.boot/cache") parsed-file)))
                                      parsed-file
                                    (buffer-file-name))))
                   (flycheck-error-new-at .line .column (intern .level) .msg
