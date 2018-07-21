@@ -74,12 +74,11 @@ Either way, you should now get the snazzy yellow post-it messages when the curso
 If you're used to `flycheck` but not used to `cider`, you may want
 
 ~~~.el
-(add-hook 'cider-mode-hook 
+(add-hook 'cider-mode-hook
   (lambda () (setq next-error-function #'flycheck-next-error-function)))
 ~~~
 
 to override the binding to ````cider-jump-to-compilation-error`.
-
 
 ### Dependencies in Clojure:
 
@@ -94,9 +93,9 @@ upon `cider-jack-in`.
 setting `flycheck-clojure-inject-dependencies-at-jack-in` to nil.)
 
 
-If you want to `cider-attach` to a running repl, then you'll need to specify the proper dependencies in your 
+If you want to `cider-attach` to a running repl, then you'll need to specify the proper dependencies in your
 [`profiles.clj`](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md#profiles) or to the project-specific
-`project.clj`, as part of the `:dependencies` vector.  E.g. 
+`project.clj`, as part of the `:dependencies` vector.  E.g.
 
 ~~~.clj
 ;; profiles.clj
@@ -111,20 +110,11 @@ If you want to `cider-attach` to a running repl, then you'll need to specify the
 Note that there may be case differences between emacs' `cider-version` and the proper `cider-nrepl` version for the
 profile; the latter is usually upper-case, e.g. `"0.15.0-SNAPSHOT"`.
 
-`squiggly-clojure` in turn depends pulls in dependency on
+`squiggly-clojure` in turn depends pulls in the dependencies from its `project.clj`.
 
-~~~.clj
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [environ "1.0.0"]
-                 [org.clojure/core.typed "0.3.32" :exclusions [org.clojure/clojure] :classifier "slim"]
-                 [org.clojure/data.json "0.2.6"]
-                 [jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
-                 [jonase/kibit "0.1.3"]]
-~~~
 
 Note that, if you want to use `core.typed`, you will have add a dependency and make some changes to your `ns`
 as described on the [github.page](https://github.com/clojure/core.typed).
-
 
 ### Configuration
 
@@ -257,6 +247,17 @@ receive the proper callbacks, it may be stuck in a state where it
 will never try to check again.  To reset (modulo some memory leaks perhaps)
 try turning ```flycheck-mode``` off and then on.
 
+## Developer hints
+
+If you're playing with the squiggly elisp and clojure code, it's cleanest to to start up
+emacs with the related configurations commented-out in your `init.el` and `profiles.clj`.
+The easiest workflow is then
+
+1. `lein install` the package locally
+2. before starting cider, eval `flyckeck-clojure.el` manually and `(flycheck-clojure-setup)`
+3. then `cider-jack-in`, which should now start lein with your local library, with whatever
+   dependencies you might have changed.
+4. subsequently, you can re-eval squiggy-clojure's `core.clj` as often as you like
 
 ### TODO:
 * Deal better with catastrophic failure of a checker.  Currently, we silently ignore exceptions.
