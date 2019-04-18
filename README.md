@@ -113,8 +113,8 @@ profile; the latter is usually upper-case, e.g. `"0.15.0-SNAPSHOT"`.
 `squiggly-clojure` in turn depends pulls in the dependencies from its `project.clj`.
 
 
-Note that, if you want to use `core.typed`, you will have add a dependency and make some changes to your `ns`
-as described on the [github.page](https://github.com/clojure/core.typed).
+Note that, if you want to use `core.typed`, you will have to add a dependency and make some changes to your `ns`
+as described on the [github page](https://github.com/clojure/core.typed).
 
 ### Configuration
 
