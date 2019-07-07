@@ -202,7 +202,10 @@ now manifest in emacs.
 
 If something mysterious is happening, you may find it helpful to look at the
 `*nrepl-messages...` buffers, where CIDER silently logs all traffic between EMACS
-and Clojure.  Among other things, you'll find here the Clojure expressions that
+and Clojure.  Note, per the [cider docs](https://cider.readthedocs.io/en/latest/troubleshooting/)
+that you must have such logging turned on, either by setting `nrepl-log-messages` to true or running
+`nrepl-toggle-message-logging`.
+Among other things, you'll find here the Clojure expressions that
 were evaluated to initiate the checking, e.g.
 
 ~~~
