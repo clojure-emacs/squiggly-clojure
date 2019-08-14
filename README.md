@@ -110,15 +110,15 @@ If you want to `cider-attach` to a running repl, then you'll need to specify the
 Note that there may be case differences between emacs' `cider-version` and the proper `cider-nrepl` version for the
 profile; the latter is usually upper-case, e.g. `"0.15.0-SNAPSHOT"`.
 
-`squiggly-clojure` in turn depends pulls in the dependencies from its `project.clj`.
+`squiggly-clojure` in turn pulls in the dependencies from its `project.clj`.
 
 
-Note that, if you want to use `core.typed`, you will have to add a dependency and make some changes to your `ns`
+Note that if you want to use `core.typed`, you will have to add a dependency and make some changes to your `ns`
 as described on the [github page](https://github.com/clojure/core.typed).
 
 ### Configuration
 
-See the `sample-project` subdirectory for examples of the configuration methods
+See the `sample-project` subdirectory for some examples of the configuration methods
 described below.
 
 #### From Emacs
