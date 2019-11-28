@@ -200,9 +200,21 @@ First, see the warnings above.  The general theme is that we depend on
 three external linters, problems or incompatibilities with any of which might
 now manifest in emacs.
 
-If something mysterious is happening, you may find it helpful to look at the
-`*nrepl-messages...` buffers, where CIDER silently logs all traffic between EMACS
-and Clojure.  Among other things, you'll find here the Clojure expressions that
+You should start by making sure that `flycheck-clojure` has is in fact being initialized.
+After you `cider-jack-in`, the `*Messages*` buffer will show a message like
+```
+[nREPL] Starting server via /home/pnf/bin/lein update-in :dependencies conj \[acyclic/squiggly-clojure\ \"0.1.9-SNAPSHOT\"\ \:exclusions\ \[org.clojure/tools.reader\]\] -- update-in :dependencies conj \[nrepl\ \"0.6.0\"\] -- update-in :plugins conj \[refactor-nrepl\ \"2.5.0-SNAPSHOT\"\] -- update-in :plugins conj \[cider/cider-nrepl\ \"0.23.0-SNAPSHOT\"\] -- repl :headless :host localhost
+```
+If you don't see `acyclic/squiggly-clojure` among the `:dependencies`, then, most likely, will also not see
+it in `cider-jack-in-dependencies`.  Either `flycheck-clojure-setup` was never called, or it was called
+*before* cider itself was loaded and the `alist` was overwritten.  You should check your emacs configuration, but for now
+run `flycheck-clojure-setup` again manually.
+
+Once you're sure that `flycheck-clojure` is in fact initialized, you can debug further by looking at the
+messages between cider and the clojure process.  These will be in the 
+`*nrepl-messages...` buffer, but only if you have `(setq nrepl-log-messages t)`; messages are no longer
+being logged by default.
+Among other things, you'll find here the Clojure expressions that
 were evaluated to initiate the checking, e.g.
 
 ~~~
