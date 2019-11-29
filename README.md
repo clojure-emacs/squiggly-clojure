@@ -30,16 +30,53 @@ Read these warnings:
 
 ### Installation
 
-The package is available on [Melpa](http://melpa.org/):
+`flycheck-clojure` of course requires `cider` and `flycheck`, which it should fetch as dependencdies
+You can install from [Melpa](http://melpa.org/):
 
     M-x package-install flycheck-clojure
+	
+but probably the easiest way to ensure proper loading and initializaiton order is via `use-package`.
+With the following, simply invoking `cider-jack-in` will, after `cider` inititialization, but before actually
+running, automatically invok
+`flycheck-clojure-setup`, which will in turn inject plugin dependencies properly.  If  you're not careful,
+`cider` can end up over-writing the `cider-jack-in-dependencies` with defaults.
+
+```
+(use-package cider
+  :ensure t :defer t
+  :config
+  (setq
+    cider-repl-history-file ".cider-repl-history"  ;; not squiggly-related, but I like it
+	nrepl-log-messages t)                          ;; not necessary, but useful for trouble-shooting
+  (flycheck-clojure-setup))                        ;; run setup *after* cider load
+
+(use-package flycheck-clojure
+  :defer t
+  :commands (flycheck-clojure-setup)               ;; autoload
+  :config
+  (eval-after-load 'flycheck
+    '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+  (add-hook 'after-init-hook #'global-flycheck-mode))
+
+(use-package flycheck :ensure t)
+(use-package flycheck-pos-tip :ensure t
+  :after flycheck)
+```
+	
+
+
 
 Alternatively, (1) clone this project and put its `elisp/flycheck-clojure/` directory
 on your path, or (2) download
 [this one file](https://github.com/clojure-emacs/clojure-mode/blob/master/clojure-mode.el),
-and install it wherever you like.
+and install it wherever you like.  You can still use `use-package` if you add 
+```
+  :pin manual
+  :load-path "~/dev/squiggly-clojure/elisp/flycheck-clojure/" ;; or whereever
+```
+to the `(use-package flycheck-clojure ....)` entry.
 
-Add to your ```.emacs```:
+If you're not using `use-package`, add to your ```.emacs```:
 
 ~~~.el
 (eval-after-load 'flycheck '(flycheck-clojure-setup))
