@@ -237,10 +237,15 @@ First, see the warnings above.  The general theme is that we depend on
 three external linters, problems or incompatibilities with any of which might
 now manifest in emacs.
 
+Maddeningly, the most common way for an incompatibility to manifest is with an uncaught clojure exception
+that emacs fails to parse, resulting in the cryptic error "Wrong number of arguments: (4 . 4), 0".  To debug this,
+follow the suggestions below, especially the one about pasting the calls to the inter directly in to the REPL buffer
+so you can see errors, unfiltered by emacs.
+
 You should start by making sure that `flycheck-clojure` has is in fact being initialized.
 After you `cider-jack-in`, the `*Messages*` buffer will show a message like
 ```
-[nREPL] Starting server via /home/pnf/bin/lein update-in :dependencies conj \[acyclic/squiggly-clojure\ \"0.1.9-SNAPSHOT\"\ \:exclusions\ \[org.clojure/tools.reader\]\] -- update-in :dependencies conj \[nrepl\ \"0.6.0\"\] -- update-in :plugins conj \[refactor-nrepl\ \"2.5.0-SNAPSHOT\"\] -- update-in :plugins conj \[cider/cider-nrepl\ \"0.23.0-SNAPSHOT\"\] -- repl :headless :host localhost
+[nREPL] Starting server via /home/pnf/bin/lein update-in :dependencies conj \[acyclic/squiggly-clojure\ \"0.1.9-SNAPSHOT\"\  -- update-in :dependencies conj \[nrepl\ \"0.6.0\"\] -- update-in :plugins conj \[refactor-nrepl\ \"2.5.0-SNAPSHOT\"\] -- update-in :plugins conj \[cider/cider-nrepl\ \"0.23.0-SNAPSHOT\"\] -- repl :headless :host localhost
 ```
 If you don't see `acyclic/squiggly-clojure` among the `:dependencies`, then, most likely, will also not see
 it in `cider-jack-in-dependencies`.  Either `flycheck-clojure-setup` was never called, or it was called
@@ -251,12 +256,6 @@ Once you're sure that `flycheck-clojure` is in fact initialized, you can debug f
 messages between cider and the clojure process.  These will be in the 
 `*nrepl-messages...` buffer, but only if you have `(setq nrepl-log-messages t)`; messages are no longer
 being logged by default.
-
-If something mysterious is happening, you may find it helpful to look at the
-`*nrepl-messages...` buffers, where CIDER silently logs all traffic between EMACS
-and Clojure.  Note, per the [cider docs](https://cider.readthedocs.io/en/latest/troubleshooting/)
-that you must have such logging turned on, either by setting `nrepl-log-messages` to true or running
-`nrepl-toggle-message-logging`.
 
 Among other things, you'll find here the Clojure expressions that
 were evaluated to initiate the checking, e.g.
