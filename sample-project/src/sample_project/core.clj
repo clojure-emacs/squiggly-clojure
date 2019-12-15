@@ -1,9 +1,12 @@
 (ns sample-project.core
-  {:squiggly {:checkers [:kibit :eastwood :typed]
+  {:squiggly {:checkers [:kibit :eastwood
+                         ;; Uncomment to include type checking
+                         ;; :typed  
+                         ]
               :eastwood-exclude-linters [:unlimited-use]
               :eastwood-options {:not-a-real-option "foo"}}
    :lang :core.typed}
-  (:require [clojure.core.typed :as t])
+;  (:require [clojure.core.typed :as t])
 ;;  (:use [clojure.stacktrace])  ;; warning suppressed by :eastwood-exclude-linters
   )
 

@@ -200,7 +200,9 @@ If injecting the dependencies is not preferred set `flycheck-clojure-inject-depe
   (when (and flycheck-clojure-inject-dependencies-at-jack-in
              (boundp 'cider-jack-in-dependencies))
     (cider-add-to-alist 'cider-jack-in-dependencies "acyclic/squiggly-clojure" flycheck-clojure-dep-version)
-    (cider-add-to-alist 'cider-jack-in-dependencies-exclusions "acyclic/squiggly-clojure" '("org.clojure/tools.reader"))))
+    ;; reader is needed by kibit and no longer provided via cider
+    ;;(cider-add-to-alist 'cider-jack-in-dependencies-exclusions "acyclic/squiggly-clojure" '("org.clojure/tools.reader"))
+    ))
 
 ;;;###autoload
 (defun flycheck-clojure-setup ()

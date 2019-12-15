@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [environ "1.1.0"]
+                 [org.clojure/tools.reader "1.3.2"]
                  [org.clojure/core.typed "0.5.3" :exclusions [org.clojure/clojure] :classifier "slim"]
                  [org.clojure/data.json "0.2.6"]
                  [jonase/eastwood "0.2.8" :exclusions [org.clojure/clojure]]
